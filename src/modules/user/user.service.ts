@@ -12,6 +12,7 @@ export class UserService {
   ) {}
 
   async create(createUserInput: CreateUserInput) {
+    // Check if the email is already in use
     const user = await this.findUserByEmail(createUserInput.email);
 
     // if the user already exists throw an error
