@@ -8,11 +8,13 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { PostModule } from './modules/post/post.module';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
+    PostModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       path: 'master',
       driver: ApolloDriver,
