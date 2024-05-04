@@ -1,4 +1,4 @@
-import { Resolver, Query } from '@nestjs/graphql';
+import { Resolver, Query, Args, Context, Mutation, Int } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { UseGuards } from '@nestjs/common';
@@ -8,19 +8,22 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Query(() => [User], { name: 'user' })
+  @Mutation(() => String, { name: 'followAndUnfollow' })
   @UseGuards(JwtAuthGuard)
-  findAll() {
-    return this.userService.findAll();
+  followAndUnfollow(
+    @Context() context,
+    @Args('userId', { type: () => String }) userId: string,
+  ) {
+    return this.userService.followAndUnfollow(userId, context.req.user);
   }
 
-  // @Query(() => User, { name: 'user' })
-  // findOne(@Args('id', { type: () => Int }) id: number) {
-  //   return this.userService.findOne(id);
-  // }
+  @Query(() => User, { name: 'user' })
+  findOne(@Args('id', { type: () => Int }) id: number) {
+    return '';
+  }
 
-  // @Mutation(() => User)
-  // removeUser(@Args('id', { type: () => Int }) id: number) {
-  //   return this.userService.remove(id);
-  // }
+  @Mutation(() => User)
+  removeUser(@Args('id', { type: () => Int }) id: number) {
+    return 'a';
+  }
 }
