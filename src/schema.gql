@@ -7,16 +7,37 @@ type User {
   name: String!
   email: String!
   avatar: String
-  blueTick: Boolean!
+  role: roles
   bio: String!
+  following: [User!]!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+enum roles {
+  NORMAL_USER
+  GOLD_USER
+  VERIFYED_USER
+  SUPER_USER
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+type UserInfoDto {
+  _id: String
+  name: String
+  email: String
+  avatar: String
+  role: roles
+  bio: String
+  following: [User!]
+  createdAt: DateTime
+  updatedAt: DateTime
+  followers: [User!]!
+}
 
 type Post {
   _id: String!
@@ -28,6 +49,12 @@ type Post {
 }
 
 type Query {
-  user: [User!]!
+  accountInfo(userId: String!): UserInfoDto
+  user(id: Int!): User!
   post: [Post!]!
+}
+
+type Mutation {
+  followAndUnfollow(userId: String!): String!
+  removeUser(id: Int!): User!
 }
