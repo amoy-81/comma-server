@@ -40,7 +40,7 @@ export class UserService {
         throw new HttpException(UserMessage.unableUser, 409);
 
       // if the user was already following this account, unfollow and follow if not
-      if (userData.followers.includes(selectedUser._id))
+      if (userData.following.includes(selectedUser._id))
         return await this.unFollowAction(
           selectedUser._id,
           userData._id.toString(),
@@ -61,13 +61,13 @@ export class UserService {
   ) {
     // Get User Model From DB
     const user = await this.findById(userId);
-    console.log(user.followers);
-    // Delete Selected User From User Followers Array
+    console.log(user.following);
+    // Delete Selected User From User following Array
     const filteredFollowesArray: MongooseSchema.Types.ObjectId[] =
-      user.followers.filter(
+      user.following.filter(
         (item) => item.toString() !== selectedUserId.toString(),
       );
-    user.followers = filteredFollowesArray;
+    user.following = filteredFollowesArray;
     // Save Changes
     await user.save();
     // return message
@@ -80,12 +80,29 @@ export class UserService {
   ) {
     // Get User Model From DB
     const user = await this.findById(userId);
-    // Add Selected User In User Followers Array
-    user.followers.push(selectedUserId);
+    // Add Selected User In User following Array
+    user.following.push(selectedUserId);
     // Save Changes
     await user.save();
     // return message
     return UserMessage.follow;
+  }
+
+  async getUserAccount(userId: string) {
+    // get selected user from db
+    const user = await this.userModel.findById(userId).populate('following');
+    // if user not found return error
+    if (!user) throw new HttpException(UserMessage.notFound, 404);
+    // getting users who follow the target user
+    const followers = await this.userModel
+      .find({
+        following: user._id,
+      })
+      .populate('following');
+    // TODO : Add user Number Of Posts
+    // convert user data to json and return result
+    const userToJson = user.toJSON();
+    return { ...userToJson, followers };
   }
 
   async findUserByEmail(email: string) {

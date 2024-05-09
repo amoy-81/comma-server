@@ -44,7 +44,7 @@ export class User {
 
   @Field(() => [User])
   @Prop({ required: true, default: [], ref: User.name })
-  followers: MongooSchema.Types.ObjectId[];
+  following: MongooSchema.Types.ObjectId[];
 
   @Field(() => Date)
   createdAt: Date;

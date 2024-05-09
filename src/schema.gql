@@ -9,7 +9,7 @@ type User {
   avatar: String
   role: roles
   bio: String!
-  followers: [User!]!
+  following: [User!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -26,7 +26,21 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type UserInfoDto {
+  _id: String
+  name: String
+  email: String
+  avatar: String
+  role: roles
+  bio: String
+  following: [User!]
+  createdAt: DateTime
+  updatedAt: DateTime
+  followers: [User!]!
+}
+
 type Query {
+  accountInfo(userId: String!): UserInfoDto
   user(id: Int!): User!
 }
 
