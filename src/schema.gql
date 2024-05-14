@@ -51,7 +51,20 @@ type Post {
 type Query {
   accountInfo(userId: String!): UserInfoDto
   user(id: Int!): User!
-  post: [Post!]!
+  findPost(getPostsInputs: GetPostsInputs!): [Post!]!
+  relatedPost(paginationInputs: PaginationInput!): [Post!]!
+}
+
+input GetPostsInputs {
+  page: Int
+  pageSize: Int
+  userId: String
+  searchText: String
+}
+
+input PaginationInput {
+  page: Int
+  pageSize: Int
 }
 
 type Mutation {
