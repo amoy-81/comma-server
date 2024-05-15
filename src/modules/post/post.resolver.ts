@@ -25,4 +25,13 @@ export class PostResolver {
   ) {
     return this.postService.relatedPost(paginationInputs, context.req.user);
   }
+
+  @Query(() => Post, { name: 'onePost' })
+  @UseGuards(JwtAuthGuard)
+  getOnePost(
+    @Args('postId', { type: () => String, name: 'postId' })
+    postId: string,
+  ) {
+    return this.postService.getOnePost(postId);
+  }
 }

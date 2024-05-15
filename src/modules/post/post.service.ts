@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { CreatePostInput } from './dto/create-post.input';
 import { Post, PostDocument } from './entities/post.entity';
 import { Model } from 'mongoose';
@@ -88,6 +88,25 @@ export class PostService {
     );
 
     return posts;
+  }
+
+  async getOnePost(postId: string) {
+    try {
+      // Find the post with the provided ID and populate the author field.
+      const post = (await this.postModel.findById(postId)).populate({
+        path: 'author',
+        populate: { path: 'following', populate: { path: 'following' } },
+      });
+
+      // Check the post exists. Throw an error if the post does not exist.
+      if (!post) throw new HttpException(PostMessage.notFound, 404);
+
+      // Return the retrieved post.
+      return post;
+    } catch (error) {
+      // Throw an error if the post does not exist.
+      throw new HttpException(PostMessage.notFound, 404);
+    }
   }
 
   /**

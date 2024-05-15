@@ -53,6 +53,7 @@ type Query {
   user(id: Int!): User!
   findPost(getPostsInputs: GetPostsInputs!): [Post!]!
   relatedPost(paginationInputs: PaginationInput!): [Post!]!
+  onePost(postId: String!): Post!
 }
 
 input GetPostsInputs {
