@@ -13,13 +13,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { GoogleOauthGuard } from 'src/common/guards/google-oauth.guard';
+import { GoogleOauthGuard } from '../../common/guards/google-oauth.guard';
 import { Response } from 'express';
 import { UserService } from '../user/user.service';
 import { CreateUserInput } from '../user/dto/create-user.input';
 import { AuthMessage } from './messages/auth.message';
 import { LoginInput } from './dto/login-input';
-import { saveInStorage } from 'src/common/firebase/firebase.util';
+import { saveInStorage } from '../../common/firebase/firebase.util';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('auth')

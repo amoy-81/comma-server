@@ -1,6 +1,6 @@
 import { Resolver, Query, Context, Args } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Post } from './entities/post.entity';
 import { PostService } from './post.service';
 import { GetPostsInputs } from './dto/get-posts-inputs';

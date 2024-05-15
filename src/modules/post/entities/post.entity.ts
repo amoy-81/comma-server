@@ -1,7 +1,7 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooSchema } from 'mongoose';
-import { User } from 'src/modules/user/entities/user.entity';
+import { User } from '../../../modules/user/entities/user.entity';
 
 @ObjectType()
 @Schema({ timestamps: true })
@@ -13,7 +13,7 @@ export class Post {
   @Prop({ required: true })
   body: string;
 
-  @Field(() => String , {nullable: true})
+  @Field(() => String, { nullable: true })
   @Prop({ default: null })
   image: string;
 

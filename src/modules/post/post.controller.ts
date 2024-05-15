@@ -9,10 +9,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { CreatePostInput } from './dto/create-post.input';
-import { saveInStorage } from 'src/common/firebase/firebase.util';
+import { saveInStorage } from '../../common/firebase/firebase.util';
 import { PostService } from './post.service';
 import { Request } from 'express';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('post')
