@@ -152,7 +152,7 @@ export class PostService {
     try {
       // Find the post with the provided ID and populate the author field.
       const post = (await this.postModel.findById(postId)).populate({
-        path: 'author',
+        path: 'author likers',
         populate: { path: 'following', populate: { path: 'following' } },
       });
 
@@ -180,7 +180,10 @@ export class PostService {
       .sort({ createdAt: -1 }) // Skip posts based on the page number and page size.
       .skip(page ? pageSize * page - pageSize : 0) // Skip posts based on the page number and page size.
       .limit(page ? pageSize : 0) // Populate the author field for each post.
-      .populate('author');
+      .populate({
+        path: 'author likers',
+        populate: { path: 'following', populate: { path: 'following' } },
+      });
 
     // Return the retrieved posts.
     return posts;
