@@ -49,12 +49,23 @@ type Post {
   updatedAt: DateTime!
 }
 
+type Comment {
+  _id: String!
+  postId: Post!
+  body: String!
+  author: User!
+  voteUp: [User!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type Query {
   accountInfo(userId: String!): UserInfoDto
   user(id: Int!): User!
   findPost(getPostsInputs: GetPostsInputs!): [Post!]!
   relatedPost(paginationInputs: PaginationInput!): [Post!]!
   onePost(postId: String!): Post!
+  getPostComments(input: GetCommentInput!): [Comment!]!
 }
 
 input GetPostsInputs {
@@ -69,8 +80,21 @@ input PaginationInput {
   pageSize: Int
 }
 
+input GetCommentInput {
+  postId: String!
+  page: Float
+  pageSize: Float
+}
+
 type Mutation {
   followAndUnfollow(userId: String!): String!
   removeUser(id: Int!): User!
   likeAndDislike(postId: String!): String!
+  createComment(input: CreateCommentInput!): Comment!
+  voteComment(commentId: String!): String!
+}
+
+input CreateCommentInput {
+  postId: String!
+  body: String!
 }

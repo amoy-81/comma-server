@@ -1,5 +1,6 @@
-import { Field } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 
+@InputType()
 export class CreateCommentInput {
   @Field(() => String)
   postId: string;

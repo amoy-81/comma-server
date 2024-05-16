@@ -25,6 +25,17 @@ export class CommentService {
       ...createCommentInput,
       author: user._id,
     });
+
+    // Populate author, voteUp, post in model.
+    await newComment.populate({
+      path: 'author voteUp postId',
+      populate: {
+        strictPopulate: false,
+        path: 'following likers author',
+        populate: { strictPopulate: false, path: 'following likers author' },
+      },
+    });
+
     // Return the newly created comment.
     return newComment;
   }
@@ -37,12 +48,16 @@ export class CommentService {
     // Find all comments for the given post ID.
     const comments = await this.commentModel
       .find({ postId })
-      .sort({ 'voteUp.length': -1 })
+      .sort({ voteUp: -1 })
       .skip(page ? pageSize * page - pageSize : 0)
       .limit(page ? pageSize : 0)
       .populate({
-        path: 'author voteUp',
-        populate: { path: 'following', populate: { path: 'following' } },
+        path: 'author voteUp postId',
+        populate: {
+          strictPopulate: false,
+          path: 'following likers author',
+          populate: { strictPopulate: false, path: 'following likers author' },
+        },
       });
 
     // Return the retrieved comments.
@@ -64,18 +79,18 @@ export class CommentService {
 
       if (comment.voteUp.includes(user._id)) {
         // If the user has already voteUp the comment, remove them from the voteUp array.
-        return this.voteUp(comment, user._id, saveModel);
+        return this.voteDown(comment, user._id, saveModel);
       } else {
         // If the user has not voteUp the comment, add them to the voteUp array.
-        return this.voteDown(comment, user._id, saveModel);
+        return this.voteUp(comment, user._id, saveModel);
       }
     } catch (error) {
-      // Throw an error if the post does not exist.
+      // Throw an error if the comment does not exist.
       throw new HttpException(CommentMessage.notFound, 404);
     }
   }
 
-  async voteUp(
+  private async voteUp(
     comment: Comment,
     userId: MongooseSchema.Types.ObjectId,
     saveModel: () => Promise<void>,
@@ -89,7 +104,7 @@ export class CommentService {
     return CommentMessage.successVoteUp;
   }
 
-  async voteDown(
+  private async voteDown(
     comment: Comment,
     userId: MongooseSchema.Types.ObjectId,
     saveModel: () => Promise<void>,
