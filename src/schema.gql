@@ -44,6 +44,7 @@ type Post {
   body: String!
   image: String
   author: User!
+  likers: [User!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -53,6 +54,7 @@ type Query {
   user(id: Int!): User!
   findPost(getPostsInputs: GetPostsInputs!): [Post!]!
   relatedPost(paginationInputs: PaginationInput!): [Post!]!
+  onePost(postId: String!): Post!
 }
 
 input GetPostsInputs {
@@ -70,4 +72,5 @@ input PaginationInput {
 type Mutation {
   followAndUnfollow(userId: String!): String!
   removeUser(id: Int!): User!
+  likeAndDislike(postId: String!): String!
 }

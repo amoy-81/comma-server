@@ -21,6 +21,10 @@ export class Post {
   @Prop({ ref: User.name, required: true })
   author: MongooSchema.Types.ObjectId;
 
+  @Field(() => [User])
+  @Prop({ default: [], ref: User.name, required: true })
+  likers: MongooSchema.Types.ObjectId[];
+
   @Field(() => Date)
   createdAt: Date;
 
