@@ -13,13 +13,17 @@ export class Post {
   @Prop({ required: true })
   body: string;
 
-  @Field(() => String , {nullable: true})
+  @Field(() => String, { nullable: true })
   @Prop({ default: null })
   image: string;
 
   @Field(() => User)
   @Prop({ ref: User.name, required: true })
   author: MongooSchema.Types.ObjectId;
+
+  @Field(() => [User])
+  @Prop({ default: [], ref: User.name, required: true })
+  likers: MongooSchema.Types.ObjectId[];
 
   @Field(() => Date)
   createdAt: Date;

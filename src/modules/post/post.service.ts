@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { CreatePostInput } from './dto/create-post.input';
 import { Post, PostDocument } from './entities/post.entity';
-import { Model } from 'mongoose';
+import { Model, Schema as MongooseSchema } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { PostMessage } from './messages/post.message';
 import { GetPostsInputs } from './dto/get-posts-inputs';
@@ -32,6 +32,64 @@ export class PostService {
       postId: newPost._id,
       message: PostMessage.successCreate,
     };
+  }
+
+  async likeDislikeOperation(postId: string, user: any) {
+    try {
+      // Find the post with the provided ID.
+      const post = await this.postModel.findById(postId);
+
+      // Function for save post changes.
+      const saveModel: () => Promise<void> = async () => {
+        await post.save();
+      };
+
+      // Check the post exists. Throw an error if the post does not exist.
+      if (!post) throw new HttpException(PostMessage.notFound, 404);
+
+      if (post.likers.includes(user._id)) {
+        // If the user has already liked the post, remove them from the likers array.
+        return this.unLike(post, user._id, saveModel);
+      } else {
+        // If the user has not liked the post, add them to the likers array.
+        return this.like(post, user._id, saveModel);
+      }
+    } catch (error) {
+      // Throw an error if the post does not exist.
+      throw new HttpException(PostMessage.notFound, 404);
+    }
+  }
+
+  async like(
+    post: Post,
+    userId: MongooseSchema.Types.ObjectId,
+    saveModel: () => Promise<void>,
+  ) {
+    // Add the user's ID to the post's likers array.
+    post.likers.push(userId);
+    // Save the updated post.
+    await saveModel();
+
+    // Return a success response with the updated post's ID and a success message.
+    return PostMessage.successLike;
+  }
+
+  async unLike(
+    post: Post,
+    userId: MongooseSchema.Types.ObjectId,
+    saveModel: () => Promise<void>,
+  ) {
+    // Remove the user's ID from the post's likers array.
+    const newLikersArray: MongooseSchema.Types.ObjectId[] = post.likers.filter(
+      (id) => id.toString() !== userId.toString(),
+    );
+    // Insert the new value in the list of users
+    post.likers = newLikersArray;
+    // Save the updated post.
+    await saveModel();
+
+    // Return a success response with the updated post's ID and a success message.
+    return PostMessage.successUnlike;
   }
 
   /**

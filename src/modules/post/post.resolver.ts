@@ -1,4 +1,4 @@
-import { Resolver, Query, Context, Args } from '@nestjs/graphql';
+import { Resolver, Query, Context, Args, Mutation } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { Post } from './entities/post.entity';
@@ -33,5 +33,15 @@ export class PostResolver {
     postId: string,
   ) {
     return this.postService.getOnePost(postId);
+  }
+
+  @Mutation(() => String, { name: 'likeAndDislike' })
+  @UseGuards(JwtAuthGuard)
+  likeAndDislike(
+    @Context() context,
+    @Args('postId', { type: () => String, name: 'postId' })
+    postId: string,
+  ) {
+    return this.postService.likeDislikeOperation(postId, context.req.user);
   }
 }
