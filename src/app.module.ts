@@ -10,6 +10,7 @@ import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { CommentModule } from './modules/comment/comment.module';
     ConfigModule.forRoot({
       cache: true,
     }),
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
