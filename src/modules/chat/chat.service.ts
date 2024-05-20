@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ChatRoom, ChatRoomDocument } from './entities/chat-room.entity';
-import { Model } from 'mongoose';
+import { Model, Schema as MongooseSchema } from 'mongoose';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { ChatRoomMessage } from './messages/chat-room.message';
 import { UserService } from '../user/user.service';
@@ -34,6 +34,33 @@ export class ChatService {
       // Throw an error if the chat room creation fails.
       throw new HttpException(error.message || 'Opps...', 400);
     }
+  }
+
+  async getUserRooms(userId: string) {
+    // Find rooms that the user is a owner of or a member of.
+    const rooms = await this.chatRoomModel.find(
+      { $or: [{ owner: userId }, { members: userId }] },
+      { inviteLink: 0, __v: 0 },
+    );
+    // Return fined Rooms
+    return rooms;
+  }
+
+  /**
+   * Retrieves a chat room based on the roomId and userId.
+   */
+  async oneRoom(roomId: string, userId: string) {
+    // Find the room based on roomId
+    const room = await this.chatRoomModel.findById(roomId);
+    // Remove the inviteLink field from the room data
+    const { inviteLink, ...roomWithoutInviteLink } = room.toJSON();
+
+    // Check if the owner is the same as the input userId
+    // Return the entire room data if owner matches userId
+    // Return room data without inviteLink if owner does not match userId
+    return room.owner.toString() === userId.toString()
+      ? room
+      : roomWithoutInviteLink;
   }
 
   async generateInviteLink(roomId: string, userId: string) {
@@ -147,6 +174,73 @@ export class ChatService {
         countOfOpration,
         success: false,
       };
+    }
+  }
+
+  async deleteUserFromRoom(
+    roomId: string,
+    selectedUserId: string,
+    ownerId: string,
+  ): Promise<{ message: string; success: boolean }> {
+    try {
+      // Find the chat room with the provided ID.
+      const room = await this.chatRoomModel.findById(roomId);
+
+      // Find the index of the user to delete in the members array.
+      const userIndex: number = room.members.findIndex(
+        (user) => user.toString() === selectedUserId.toString(),
+      );
+
+      // Check if the room exists, the owner ID matches, and the user to delete is a member.
+      if (!room || room.owner.toString() !== ownerId || userIndex === -1)
+        throw new HttpException(ChatRoomMessage.notFound, 404);
+
+      // Create a new members array without the user to delete.
+      const newMembersArray: MongooseSchema.Types.ObjectId[] =
+        room.members.filter(
+          (id) => id.toString() !== selectedUserId.toString(),
+        );
+
+      // Update the room's members array with the new array.
+      room.members = newMembersArray;
+
+      // Save the updated room.
+      await room.save();
+
+      // Return a success response.
+      return {
+        message: ChatRoomMessage.successDelete,
+        success: true,
+      };
+    } catch (error) {
+      // Throw an HTTP exception with the error message.
+      throw new HttpException(error.message || ChatRoomMessage.notFound, 400);
+    }
+  }
+
+  async deleteRoom(
+    roomId: string,
+    userId: string,
+  ): Promise<{ message: string; success: boolean }> {
+    try {
+      // Find the chat room with the provided ID.
+      const room = await this.chatRoomModel.findById(roomId);
+
+      // Check if the chat room exists and user is the owner of the chat room.
+      if (!room || room.owner.toString() !== userId.toString())
+        throw new HttpException(ChatRoomMessage.notFound, 404);
+
+      // Delete the chat room.
+      await room.deleteOne();
+
+      // Return a success response with success indicator.
+      return {
+        message: ChatRoomMessage.successDelete,
+        success: true,
+      };
+    } catch (error) {
+      // Throw an HTTP exception with the error message.
+      throw new HttpException(error.message || ChatRoomMessage.notFound, 404);
     }
   }
 }
