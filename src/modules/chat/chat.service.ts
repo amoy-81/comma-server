@@ -7,14 +7,80 @@ import { ChatRoomMessage } from './messages/chat-room.message';
 import { UserService } from '../user/user.service';
 import { AddUserToChatRoom } from './types/add-user-to-room';
 import { v4 as uuidv4 } from 'uuid';
+import { MessageDto } from './dto/message.dto';
+import { Chat, ChatDocument } from './entities/chat.entity';
+import { ChatGateway } from './chat.gateway';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectModel(ChatRoom.name)
     private readonly chatRoomModel: Model<ChatRoomDocument>,
+    @InjectModel(Chat.name)
+    private readonly chatModel: Model<ChatDocument>,
+    private readonly chatGateway: ChatGateway,
     private readonly userService: UserService,
   ) {}
+
+  async createMessage(messageDto: MessageDto) {
+    // TODO : implement get files and save to storage
+    try {
+      // Find room by id from db.
+      const room = await this.chatRoomModel.findById(messageDto.roomId);
+
+      // Find the index of the author in the members array.
+      const userIndex: number = room.members.findIndex(
+        (user) => user.toString() === messageDto.author.toString(),
+      );
+
+      // Check if the author is not the owner and not a member of the room.
+      if (
+        room.owner.toString() !== messageDto.author.toString() &&
+        userIndex === -1
+      )
+        throw new HttpException(ChatRoomMessage.notFound, 404);
+
+      // Create a new message using the messageDto.
+      const newMessage = await this.chatModel.create({ ...messageDto });
+
+      // Send the new message using the chatGateway.
+      this.chatGateway.sendMessage(newMessage);
+
+      // Return generated message for http response.
+      return newMessage;
+    } catch (error) {
+      throw new HttpException(error.message, 500);
+    }
+  }
+
+  async wsJoinInRoom(client: Socket, roomId: string, userId: string) {
+    try {
+      // Find room by id from db.
+      const room = await this.chatRoomModel.findById(roomId);
+
+      // Find the index of the user to join in the room array.
+      const userIndex: number = room.members.findIndex(
+        (user) => user.toString() === userId.toString(),
+      );
+
+      // Check if the room or the user is not found.
+      if (
+        !room ||
+        (room.owner.toString() !== userId.toString() && userIndex === -1)
+      )
+        client.disconnect();
+
+      // Join the client to the room.
+      client.join(room._id.toString());
+    } catch (error) {
+      // If an error occurs, disconnect the user
+      client.disconnect();
+    }
+  }
+  /**
+   * CHAT ROOM SERVICES
+   */
   async createChatRoom(input: CreateChatRoomDto, ownerId: string) {
     try {
       // Create a new chat room using the provided input data and owner ID.

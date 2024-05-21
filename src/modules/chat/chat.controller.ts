@@ -10,14 +10,21 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { DeleteFromRoomDto } from './dto/delete-from-room.dto';
+import { MessageDto } from './dto/message.dto';
 
 @Controller('chat')
 @UseGuards(JwtAuthGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
+
+  @Post('new-message')
+  createNewMessage(@Req() req: any, @Body() inputs: MessageDto) {
+    inputs.author = req.user.id;
+    return this.chatService.createMessage(inputs);
+  }
 
   @Post('chat-room')
   createChatRoom(@Req() req: any, @Body() inputs: CreateChatRoomDto) {
