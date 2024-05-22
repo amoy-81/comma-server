@@ -44,6 +44,7 @@ export class ChatService {
       // Create a new message using the messageDto.
       const newMessage = await this.chatModel.create({ ...messageDto });
 
+      await newMessage.populate('author', '-password -__v -following -bio');
       // Send the new message using the chatGateway.
       this.chatGateway.sendMessage(newMessage);
 
@@ -78,6 +79,37 @@ export class ChatService {
       client.disconnect();
     }
   }
+
+  async getPrevMessages(
+    roomId: string,
+    userId: string,
+    querys: { page?: number; size?: number },
+  ) {
+    try {
+      const { page, size } = querys;
+      const room = await this.chatRoomModel.findById(roomId);
+
+      // Find the index of the user members array.
+      const userIndex: number = room.members.findIndex(
+        (user) => user.toString() === userId.toString(),
+      );
+
+      // Check if the room exists, the owner ID matches, and the user is a member.
+      if (!room || room.owner.toString() !== userId || userIndex === -1)
+        throw new HttpException(ChatRoomMessage.notFound, 404);
+
+      const messages = await this.chatModel
+        .find({ roomId })
+        .sort({ createdAt: -1 })
+        .skip(page ? size * page - size : 0)
+        .limit(page ? size : 0)
+        .populate('author', '-password -__v -following -bio');
+
+      return messages;
+    } catch (error) {
+      throw new HttpException(error.message || ChatRoomMessage.notFound, 404);
+    }
+  }
   /**
    * CHAT ROOM SERVICES
    */
@@ -103,30 +135,44 @@ export class ChatService {
   }
 
   async getUserRooms(userId: string) {
-    // Find rooms that the user is a owner of or a member of.
-    const rooms = await this.chatRoomModel.find(
-      { $or: [{ owner: userId }, { members: userId }] },
-      { inviteLink: 0, __v: 0 },
-    );
-    // Return fined Rooms
-    return rooms;
+    try {
+      // Find rooms that the user is a owner of or a member of.
+      const rooms = await this.chatRoomModel.find(
+        { $or: [{ owner: userId }, { members: userId }] },
+        { inviteLink: 0, __v: 0 },
+      );
+      // Return fined Rooms
+      return rooms;
+    } catch (error) {
+      throw new HttpException(error.message || ChatRoomMessage.notFound, 404);
+    }
   }
 
   /**
    * Retrieves a chat room based on the roomId and userId.
    */
   async oneRoom(roomId: string, userId: string) {
-    // Find the room based on roomId
-    const room = await this.chatRoomModel.findById(roomId);
-    // Remove the inviteLink field from the room data
-    const { inviteLink, ...roomWithoutInviteLink } = room.toJSON();
+    try {
+      /**
+       * Find the room based on roomId.
+       */
+      const room = await this.chatRoomModel.findById(roomId);
+      /**
+       * Remove the inviteLink field from the room data.
+       */
+      const { inviteLink, ...roomWithoutInviteLink } = room.toJSON();
 
-    // Check if the owner is the same as the input userId
-    // Return the entire room data if owner matches userId
-    // Return room data without inviteLink if owner does not match userId
-    return room.owner.toString() === userId.toString()
-      ? room
-      : roomWithoutInviteLink;
+      /**
+       * Check if the owner is the same as the input userId.
+       * Return the entire room data if owner matches userId.
+       * Return room data without inviteLink if owner does not match userId.
+       */
+      return room.owner.toString() === userId.toString()
+        ? room
+        : roomWithoutInviteLink;
+    } catch (error) {
+      throw new HttpException(error.message || ChatRoomMessage.notFound, 404);
+    }
   }
 
   async generateInviteLink(roomId: string, userId: string) {
@@ -211,7 +257,7 @@ export class ChatService {
             // Check if the user is not already a member of the chat room.
             if (!chatRoom.members.includes(checkdUser._id)) {
               // Add the user to the chat room's members array.
-              chatRoom.members.push(checkdUser._id);
+              chatRoom.members.push(checkdUser._id.toString());
               // Increment the operation count.
               countOfOpration += 1;
             }

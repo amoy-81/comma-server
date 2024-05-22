@@ -8,6 +8,7 @@ import {
   Req,
   Put,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -25,6 +26,19 @@ export class ChatController {
     inputs.author = req.user.id;
     return this.chatService.createMessage(inputs);
   }
+
+  @Get('prev-messages/:roomId')
+  getAllPrevMessage(@Req() req: any, @Param('roomId') roomId: string) {
+    const { page, size } = req.query;
+    return this.chatService.getPrevMessages(roomId, req.user.id, {
+      page: parseInt(page),
+      size: parseInt(size),
+    });
+  }
+
+  /**
+   * Room Options
+   */
 
   @Post('chat-room')
   createChatRoom(@Req() req: any, @Body() inputs: CreateChatRoomDto) {
@@ -57,7 +71,7 @@ export class ChatController {
     return this.chatService.getUserRooms(req.user.id);
   }
 
-  @Get(':roomId')
+  @Get('room/:roomId')
   getOneRoom(@Req() req: any, @Param('roomId') roomId: string) {
     return this.chatService.oneRoom(roomId, req.user.id);
   }
