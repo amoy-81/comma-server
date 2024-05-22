@@ -86,18 +86,22 @@ export class ChatService {
     querys: { page?: number; size?: number },
   ) {
     try {
+      // destruction querys.
       const { page, size } = querys;
+
+      // Find the chat room based on the roomId.
       const room = await this.chatRoomModel.findById(roomId);
 
-      // Find the index of the user members array.
+      // Find the index of the user in the members array of the chat room.
       const userIndex: number = room.members.findIndex(
         (user) => user.toString() === userId.toString(),
       );
 
-      // Check if the room exists, the owner ID matches, and the user is a member.
+      // Check if the room exists and the user is a member.
       if (!room || room.owner.toString() !== userId || userIndex === -1)
         throw new HttpException(ChatRoomMessage.notFound, 404);
 
+      // Find the messages in the chat room and sort them by createdAt.
       const messages = await this.chatModel
         .find({ roomId })
         .sort({ createdAt: -1 })

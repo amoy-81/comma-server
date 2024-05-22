@@ -8,7 +8,6 @@ import {
   Req,
   Put,
   Delete,
-  Query,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
