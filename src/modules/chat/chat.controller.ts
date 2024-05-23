@@ -35,6 +35,11 @@ export class ChatController {
     });
   }
 
+  @Delete('message/:messgaeId')
+  deleteMessage(@Req() req: any, @Param('messgaeId') messageId: string) {
+    return this.chatService.deleteMessage(messageId, req.user.id);
+  }
+
   /**
    * Room Options
    */

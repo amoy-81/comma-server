@@ -28,6 +28,15 @@ export class ChatGateway implements OnGatewayConnection {
     await this.chatService.wsJoinInRoom(client, roomId, userId);
   }
 
+  async handleDisconnect(client: Socket, ...args: any[]) {
+    // Extract the roomId and userId from the client.
+    const roomId = client.handshake.headers['set-room-id'];
+    const userId = client.handshake.headers['set-user-id'];
+
+    // Delete the user from the list of current users in the database.
+    await this.chatService.wsLeavingRoom(roomId.toString(), userId.toString());
+  }
+
   // Send a new message to the room
   sendMessage(message: Chat) {
     // Emit the 'newMessage' event to all clients in the room

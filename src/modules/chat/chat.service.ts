@@ -74,9 +74,45 @@ export class ChatService {
 
       // Join the client to the room.
       client.join(room._id.toString());
+
+      // Find the index of the user in current users list.
+      const currentUserIndex: number = room.currentlyUsers.findIndex(
+        (user) => user.toString() === userId.toString(),
+      );
+
+      // Check exist user in current user list
+      if (currentUserIndex !== -1) return;
+
+      // Get user from db.
+      const user = await this.userService.findById(userId);
+
+      // Join the client to currently users list in db.
+      room.currentlyUsers.push(user._id.toString());
+
+      // Save room changes.
+      await room.save();
     } catch (error) {
       // If an error occurs, disconnect the user
       client.disconnect();
+    }
+  }
+
+  async wsLeavingRoom(roomId: string, userId: string) {
+    try {
+      // Find room by id from db.
+      const room = await this.chatRoomModel.findById(roomId);
+
+      // Delete user from currently user list.
+      const newCurrentlyUsersArray: MongooseSchema.Types.ObjectId[] =
+        room.currentlyUsers.filter((id) => id.toString() !== userId.toString());
+
+      // Update the room's currently users array with the new array.
+      room.currentlyUsers = newCurrentlyUsersArray;
+
+      // Save room changes.
+      await room.save();
+    } catch (error) {
+      return false;
     }
   }
 
@@ -114,10 +150,38 @@ export class ChatService {
       throw new HttpException(error.message || ChatRoomMessage.notFound, 404);
     }
   }
+
+  async deleteMessage(msgId: string, userId: string) {
+    try {
+      // Find a message by its ID using the chatModel.
+      const message = await this.chatModel.findById(msgId);
+
+      // If the message is not found or the user trying to delete it is not the author, throw an error.
+      if (!message || message.author.toString() !== userId.toString())
+        throw new HttpException(ChatRoomMessage.messageNotfound, 404);
+
+      // Delete the message from the database.
+      await message.deleteOne();
+
+      // Return a success response with a message indicating that the message was deleted.
+      return {
+        message: ChatRoomMessage.messageNotfound,
+        success: true,
+      };
+    } catch (error) {
+      // If any error occurs, catch it and throw a new HttpException with a 404 status code.
+      // The error message will be either the original error message or a default message.
+      throw new HttpException(
+        error.message || ChatRoomMessage.messageNotfound,
+        404,
+      );
+    }
+  }
   /**
    * CHAT ROOM SERVICES
    */
   async createChatRoom(input: CreateChatRoomDto, ownerId: string) {
+    // TODO : add chatroom avatar
     try {
       // Create a new chat room using the provided input data and owner ID.
       const newChatRoom = await this.chatRoomModel.create({
@@ -160,18 +224,21 @@ export class ChatService {
       /**
        * Find the room based on roomId.
        */
-      const room = await this.chatRoomModel.findById(roomId);
+      const room = (await this.chatRoomModel.findById(roomId)).populate(
+        'currentlyUsers members owner admins',
+        '-password -following -bio -__v',
+      );
       /**
        * Remove the inviteLink field from the room data.
        */
-      const { inviteLink, ...roomWithoutInviteLink } = room.toJSON();
+      const { inviteLink, ...roomWithoutInviteLink } = (await room).toJSON();
 
       /**
        * Check if the owner is the same as the input userId.
        * Return the entire room data if owner matches userId.
        * Return room data without inviteLink if owner does not match userId.
        */
-      return room.owner.toString() === userId.toString()
+      return (await room).owner.toString() === userId.toString()
         ? room
         : roomWithoutInviteLink;
     } catch (error) {

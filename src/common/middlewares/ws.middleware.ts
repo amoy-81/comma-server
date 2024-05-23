@@ -20,7 +20,7 @@ export const SocketAuthMiddelware = (client: Socket) => {
     /**
      * Extract the room from the socket handshake headers
      */
-    const room = client.handshake.headers.room;
+    const room = client.handshake.headers.room.toString();
 
     /**
      * If the token or room is missing, disconnect the client
@@ -33,6 +33,11 @@ export const SocketAuthMiddelware = (client: Socket) => {
      * The WsGuard is responsible for verifying the token and extracting the user ID
      */
     const { id } = WsGuard.validate(token);
+    /**
+     * Set values in header
+     */
+    client.handshake.headers['set-room-id'] = room;
+    client.handshake.headers['set-user-id'] = id;
     /**
      * Return an array containing the room and user ID
      */

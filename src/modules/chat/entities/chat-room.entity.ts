@@ -17,6 +17,9 @@ export class ChatRoom {
   @Prop({ default: [], ref: User.name, required: true })
   members: MongooSchema.Types.ObjectId[];
 
+  @Prop({ default: [], ref: User.name, required: true })
+  currentlyUsers: MongooSchema.Types.ObjectId[];
+
   @Prop({ required: true, default: uuidv4, unique: true })
   inviteLink: string;
 }
