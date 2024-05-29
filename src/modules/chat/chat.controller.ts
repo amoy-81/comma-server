@@ -8,12 +8,15 @@ import {
   Req,
   Put,
   Delete,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { DeleteFromRoomDto } from './dto/delete-from-room.dto';
 import { MessageDto } from './dto/message.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('chat')
 @UseGuards(JwtAuthGuard)
@@ -45,7 +48,15 @@ export class ChatController {
    */
 
   @Post('chat-room')
-  createChatRoom(@Req() req: any, @Body() inputs: CreateChatRoomDto) {
+  @UseInterceptors(FileInterceptor('avatar'))
+  createChatRoom(
+    @Req() req: any,
+    @Body() inputs: CreateChatRoomDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    // Save file in storage and add path to inputs.
+    inputs.avatar = file ? file.path : null;
+    // Create new chatroom and return res.
     return this.chatService.createChatRoom(inputs, req.user.id);
   }
 

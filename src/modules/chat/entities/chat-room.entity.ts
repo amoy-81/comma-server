@@ -8,6 +8,9 @@ export class ChatRoom {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ default: null, required: true })
+  avatar: string;
+
   @Prop({ ref: User.name, required: true })
   owner: MongooSchema.Types.ObjectId;
 

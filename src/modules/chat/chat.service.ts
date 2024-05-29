@@ -181,12 +181,12 @@ export class ChatService {
    * CHAT ROOM SERVICES
    */
   async createChatRoom(input: CreateChatRoomDto, ownerId: string) {
-    // TODO : add chatroom avatar
     try {
       // Create a new chat room using the provided input data and owner ID.
       const newChatRoom = await this.chatRoomModel.create({
         name: input.name,
         owner: ownerId,
+        avatar: input.avatar,
         members: [ownerId],
       });
 

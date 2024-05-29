@@ -8,4 +8,6 @@ export class CreateChatRoomDto {
   @IsArray()
   @IsString({ each: true })
   members: string[];
+
+  avatar: string;
 }
