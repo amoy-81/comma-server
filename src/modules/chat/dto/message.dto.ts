@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class MessageDto {
   @IsNotEmpty()
@@ -10,4 +10,8 @@ export class MessageDto {
   roomId: string;
 
   author: string;
+
+  @IsArray()
+  @IsOptional()
+  files: string[];
 }

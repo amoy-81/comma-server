@@ -1,4 +1,4 @@
-import { HttpException, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ChatController } from './chat.controller';
 import { UserModule } from '../user/user.module';
@@ -7,20 +7,8 @@ import { ChatRoom, ChatRoomSchema } from './entities/chat-room.entity';
 import { Chat, ChatSchema } from './entities/chat.entity';
 import { ChatGateway } from './chat.gateway';
 import { MulterModule } from '@nestjs/platform-express';
-import { FileFilterCallback, diskStorage } from 'multer';
+import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { Request } from 'express';
-
-const imageFileFilter = (
-  req: Request,
-  file: Express.Multer.File,
-  callback: FileFilterCallback,
-) => {
-  if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
-    return callback(new HttpException('Only image files are allowed!', 422));
-  }
-  callback(null, true);
-};
 
 @Module({
   imports: [
@@ -41,7 +29,6 @@ const imageFileFilter = (
           );
         },
       }),
-      fileFilter: imageFileFilter,
     }),
   ],
   controllers: [ChatController],

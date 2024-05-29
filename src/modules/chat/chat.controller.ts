@@ -10,22 +10,36 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { DeleteFromRoomDto } from './dto/delete-from-room.dto';
 import { MessageDto } from './dto/message.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { chatRoomAvatarFileFilter } from 'src/common/filters/chat.filter';
 
 @Controller('chat')
 @UseGuards(JwtAuthGuard)
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
+  // Endpoint to create a new message with files (5 number of  file)
   @Post('new-message')
-  createNewMessage(@Req() req: any, @Body() inputs: MessageDto) {
+  @UseInterceptors(FilesInterceptor('files', 5))
+  createNewMessage(
+    @Req() req: any,
+    @Body() inputs: MessageDto,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    // Assign the user ID from the request to the message data
     inputs.author = req.user.id;
+
+    // Map the uploaded files to their paths and assign them to the message data
+    inputs.files = files.map((file) => file?.path);
+
+    // Call the service to create the message with the provided data
     return this.chatService.createMessage(inputs);
   }
 
@@ -48,7 +62,12 @@ export class ChatController {
    */
 
   @Post('chat-room')
-  @UseInterceptors(FileInterceptor('avatar'))
+  @UseInterceptors(
+    FileInterceptor('avatar', {
+      fileFilter: chatRoomAvatarFileFilter,
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
   createChatRoom(
     @Req() req: any,
     @Body() inputs: CreateChatRoomDto,

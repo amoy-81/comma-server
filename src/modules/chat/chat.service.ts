@@ -24,10 +24,12 @@ export class ChatService {
   ) {}
 
   async createMessage(messageDto: MessageDto) {
-    // TODO : implement get files and save to storage
     try {
       // Find room by id from db.
       const room = await this.chatRoomModel.findById(messageDto.roomId);
+
+      // Check if the room not found.
+      if (!room) throw new HttpException(ChatRoomMessage.notFound, 404);
 
       // Find the index of the author in the members array.
       const userIndex: number = room.members.findIndex(
@@ -51,7 +53,7 @@ export class ChatService {
       // Return generated message for http response.
       return newMessage;
     } catch (error) {
-      throw new HttpException(error.message, 500);
+      throw new HttpException(error.message || 'Opps...', 500);
     }
   }
 
