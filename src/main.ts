@@ -5,9 +5,11 @@ import * as passport from 'passport';
 import * as session from 'express-session';
 import { config } from 'dotenv';
 import * as cookieParser from 'cookie-parser';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(new ValidationPipe());
   config();
 
