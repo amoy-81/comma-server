@@ -1,4 +1,11 @@
-import { IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateChatRoomDto {
   @IsNotEmpty()
@@ -9,5 +16,10 @@ export class CreateChatRoomDto {
   @IsString({ each: true })
   members: string[];
 
-  avatar: string;
+  @IsOptional()
+  @Type(() => String)
+  @IsIn(['image/png', 'image/jpeg', 'image/jpg'], {
+    message: 'Avatar must be a file of type: png, jpeg, jpg',
+  })
+  avatar: string | null;
 }

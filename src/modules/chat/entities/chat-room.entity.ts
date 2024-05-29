@@ -8,7 +8,7 @@ export class ChatRoom {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ default: null, required: true })
+  @Prop({ default: null })
   avatar: string;
 
   @Prop({ ref: User.name, required: true })
