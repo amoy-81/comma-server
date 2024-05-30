@@ -11,6 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { AudioCallModule } from './modules/audio-call/audio-call.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ChatModule } from './modules/chat/chat.module';
       cache: true,
     }),
     ChatModule,
+    AudioCallModule,
   ],
   controllers: [AppController],
   providers: [AppService],

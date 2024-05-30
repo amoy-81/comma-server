@@ -11,6 +11,7 @@ import { MessageDto } from './dto/message.dto';
 import { Chat, ChatDocument } from './entities/chat.entity';
 import { ChatGateway } from './chat.gateway';
 import { Socket } from 'socket.io';
+import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class ChatService {
@@ -62,17 +63,16 @@ export class ChatService {
       // Find room by id from db.
       const room = await this.chatRoomModel.findById(roomId);
 
+      if (!room) throw new WsException('Opsss');
+
       // Find the index of the user to join in the room array.
       const userIndex: number = room.members.findIndex(
         (user) => user.toString() === userId.toString(),
       );
 
       // Check if the room or the user is not found.
-      if (
-        !room ||
-        (room.owner.toString() !== userId.toString() && userIndex === -1)
-      )
-        client.disconnect();
+      if (room.owner.toString() !== userId.toString() && userIndex === -1)
+        throw new WsException('Opsss');
 
       // Join the client to the room.
       client.join(room._id.toString());
@@ -95,7 +95,7 @@ export class ChatService {
       await room.save();
     } catch (error) {
       // If an error occurs, disconnect the user
-      client.disconnect();
+      throw new WsException('Opsss');
     }
   }
 

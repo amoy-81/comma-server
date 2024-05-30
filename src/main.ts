@@ -13,6 +13,19 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   config();
 
+  app.enableCors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Origin',
+      'X-Requested-With',
+      'Accept',
+      'Authorization',
+    ],
+    credentials: true,
+  });
+
   const sessionSecretKey = process.env.SESSION_SECRET_KEY;
   app.use(cookieParser());
   app.use(

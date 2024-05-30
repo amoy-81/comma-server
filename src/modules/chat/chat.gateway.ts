@@ -21,11 +21,15 @@ export class ChatGateway implements OnGatewayConnection {
 
   // Handle new client connections
   async handleConnection(client: Socket, ...args: any[]) {
-    // Extract the roomId and userId from the client using SocketAuthMiddelware
-    const [roomId, userId] = SocketAuthMiddelware(client);
+    try {
+      // Extract the roomId and userId from the client using SocketAuthMiddelware
+      const [roomId, userId] = SocketAuthMiddelware(client);
 
-    // Join the client in the room using the chatService
-    await this.chatService.wsJoinInRoom(client, roomId, userId);
+      // Join the client in the room using the chatService
+      await this.chatService.wsJoinInRoom(client, roomId, userId);
+    } catch (error) {
+      client.disconnect();
+    }
   }
 
   async handleDisconnect(client: Socket, ...args: any[]) {
