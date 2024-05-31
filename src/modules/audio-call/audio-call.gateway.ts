@@ -19,8 +19,15 @@ export class AudioCallGateway {
   @WebSocketServer() server: Server;
 
   // Store user information with socketId as the key
-  private users: { [socketId: string]: { userId: string; roomId: string } } =
-    {};
+  private users: {
+    [socketId: string]: {
+      userId: string;
+      roomId: string;
+      name: string;
+      email: string;
+      avatar: string;
+    };
+  } = {};
 
   // Method to get all users in a specified room
   private getRoomUsers(roomId: string) {
@@ -44,16 +51,20 @@ export class AudioCallGateway {
       const [roomId, userId] = SocketAuthMiddelware(client);
 
       // Add the user to the chat room using the chat service
-      await this.chatService.wsJoinInRoom(client, roomId, userId);
+      const { name, email, avatar } = await this.chatService.wsJoinInRoom(
+        client,
+        roomId,
+        userId,
+      );
 
       // Store the user's information and room in the users object
-      this.users[client.id] = { userId, roomId };
+      this.users[client.id] = { userId, roomId, name, email, avatar };
 
       // Filter the users and return only those who are in the specified room
       const roomUsers = this.getRoomUsers(roomId);
 
       // Send a 'joinRoom' message to all users in the room with the new user's ID
-      this.server.to(roomId).emit('joinRoom', userId);
+      client.broadcast.to(roomId).emit('joinRoom', this.users[client.id]);
 
       // Send the list of users in the room to all users in the room
       this.server.to(roomId).emit('users', roomUsers);
@@ -92,7 +103,7 @@ export class AudioCallGateway {
       // Broadcast the signal to all clients in the room except the sender
       client.broadcast
         .to(payload.roomId)
-        .emit('signal', { from: user.userId, signal: payload.signal });
+        .emit('signal', { from: user, signal: payload.signal });
     }
   }
 }

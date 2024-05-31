@@ -58,7 +58,11 @@ export class ChatService {
     }
   }
 
-  async wsJoinInRoom(client: Socket, roomId: string, userId: string) {
+  async wsJoinInRoom(
+    client: Socket,
+    roomId: string,
+    userId: string,
+  ): Promise<{ name: string; email: string; avatar: string }> {
     try {
       // Find room by id from db.
       const room = await this.chatRoomModel.findById(roomId);
@@ -82,17 +86,21 @@ export class ChatService {
         (user) => user.toString() === userId.toString(),
       );
 
-      // Check exist user in current user list
-      if (currentUserIndex !== -1) return;
-
       // Get user from db.
       const user = await this.userService.findById(userId);
+
+      // Check exist user in current user list
+      if (currentUserIndex !== -1)
+        return { name: user.name, email: user.email, avatar: user.avatar };
 
       // Join the client to currently users list in db.
       room.currentlyUsers.push(user._id.toString());
 
       // Save room changes.
       await room.save();
+
+      // Return user datas
+      return { name: user.name, email: user.email, avatar: user.avatar };
     } catch (error) {
       // If an error occurs, disconnect the user
       throw new WsException('Opsss');

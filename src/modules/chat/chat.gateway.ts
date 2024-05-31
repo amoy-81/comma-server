@@ -26,7 +26,12 @@ export class ChatGateway implements OnGatewayConnection {
       const [roomId, userId] = SocketAuthMiddelware(client);
 
       // Join the client in the room using the chatService
-      await this.chatService.wsJoinInRoom(client, roomId, userId);
+      // Add the user to the chat room using the chat service
+      const { name, email, avatar } = await this.chatService.wsJoinInRoom(
+        client,
+        roomId,
+        userId,
+      );
     } catch (error) {
       client.disconnect();
     }
