@@ -5,7 +5,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Chat } from './entities/chat.entity';
-import { SocketToClientChat } from './types/chat.type';
+import { RoomUser, SocketToClientChat } from './types/chat.type';
 import { ChatService } from './chat.service';
 import { SocketAuthMiddelware } from '../../common/middlewares/ws.middleware';
 import { Inject, forwardRef } from '@nestjs/common';
@@ -19,31 +19,75 @@ export class ChatGateway implements OnGatewayConnection {
 
   @WebSocketServer() io: Server<any, SocketToClientChat>;
 
+  // Store user information with socketId as the key
+  private users: {
+    [socketId: string]: RoomUser;
+  } = {};
+
+  // Method to get all users in a specified room
+  private getRoomUsers(roomId: string) {
+    // Get all socket IDs
+    return (
+      Object.keys(this.users)
+        // Filter users by roomId
+        .filter((uid) => this.users[uid].roomId === roomId)
+        // Map the filtered socket IDs to user objects
+        .map((uid) => this.users[uid])
+    );
+  }
+
   // Handle new client connections
-  async handleConnection(client: Socket, ...args: any[]) {
+  async handleConnection(client: Socket) {
     try {
-      // Extract the roomId and userId from the client using SocketAuthMiddelware
+      // Extract roomId and userId using a middleware
       const [roomId, userId] = SocketAuthMiddelware(client);
 
-      // Join the client in the room using the chatService
       // Add the user to the chat room using the chat service
       const { name, email, avatar } = await this.chatService.wsJoinInRoom(
         client,
         roomId,
         userId,
       );
+
+      // Store the user's information and room in the users object
+      this.users[client.id] = { userId, roomId, name, email, avatar };
+
+      // Filter the users and return only those who are in the specified room
+      const roomUsers: Array<RoomUser> = this.getRoomUsers(roomId);
+
+      // Send a 'joinRoom' message to all users in the room with the new user's ID
+      client.broadcast.to(roomId).emit('joinRoom', this.users[client.id]);
+
+      // Send the list of users in the room to all users in the room
+      this.io.to(roomId).emit('onlineUsers', roomUsers);
     } catch (error) {
       client.disconnect();
     }
   }
 
-  async handleDisconnect(client: Socket, ...args: any[]) {
-    // Extract the roomId and userId from the client.
-    const roomId = client.handshake.headers['set-room-id'];
-    const userId = client.handshake.headers['set-user-id'];
+  async handleDisconnect(client: Socket) {
+    try {
+      // Retrieve the roomId from the users object using the client ID
+      const roomId = this.users[client.id]?.roomId;
+      const userId = this.users[client.id]?.userId;
 
-    // Delete the user from the list of current users in the database.
-    await this.chatService.wsLeavingRoom(roomId.toString(), userId.toString());
+      // Delete the user from the list of current users in the database.
+      await this.chatService.wsLeavingRoom(
+        roomId.toString(),
+        userId.toString(),
+      );
+
+      // Remove the user from the users object
+      delete this.users[client.id];
+
+      // Get the list of users in the specified room
+      const roomUsers = this.getRoomUsers(roomId);
+
+      // Send the updated list of users to all clients in the room
+      this.io.to(roomId).emit('onlineUsers', roomUsers);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   // Send a new message to the room
