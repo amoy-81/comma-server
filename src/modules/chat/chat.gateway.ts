@@ -1,5 +1,6 @@
 import {
   OnGatewayConnection,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -94,5 +95,14 @@ export class ChatGateway implements OnGatewayConnection {
   sendMessage(message: Chat) {
     // Emit the 'newMessage' event to all clients in the room
     this.io.to(message.roomId.toString()).emit('newMessage', message);
+  }
+
+  // Get user is typing signal.
+  @SubscribeMessage('isTyping')
+  isTypingHandler(client: Socket) {
+    // Get user datas from users list.
+    const user = this.users[client.id];
+    // Send istyping... signal for other users in room.
+    client.broadcast.to(user.roomId).emit('isTyping', user);
   }
 }
