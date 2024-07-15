@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  mongo_db:
+    container_name: mongo_db
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo_db:/data/db
+
+  app:
+    build: .
+    ports:
+      - 4000:3000
+    depends_on:
+      - mongo_db
+    restart: always
+    
+volumes:
+  mongo_db: {}
