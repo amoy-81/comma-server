@@ -1,8 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
 
 @Controller()
 export class UsersController {
@@ -47,5 +48,13 @@ export class UsersController {
   @Post('userselect')
   async getUserr(@Body() { userId }: { userId: number }) {
     return this.usersService.getUserFollowDetails(userId);
+  }
+  
+  @Patch(':id')
+  async updateUser(
+    @Param('id') id: number,
+    @Body() updateUserDto: Partial<User>,
+  ) {
+    return this.usersService.updateUser(id, updateUserDto);
   }
 }

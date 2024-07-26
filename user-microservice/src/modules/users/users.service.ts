@@ -138,6 +138,26 @@ export class UsersService {
     };
   }
 
+  async updateUser(id: number, updateUserDto: Partial<User>) {
+    // Find the existing user by ID
+    const existingUser = await this.userRepository.findOne({ where: { id } });
+
+    // If user is not found, throw an exception
+    if (!existingUser) {
+      throw new HttpException(UserMessage.notFound, HttpStatus.NOT_FOUND);
+    }
+
+    // Exclude the password field from the update data if it is present
+    const { password, email, ...updateData } = updateUserDto;
+
+    // Merge the existing user with the new data (only provided fields will overwrite)
+    const updatedUser = this.userRepository.merge(existingUser, updateData);
+
+    // Save the updated user back to the database
+    const result = await this.userRepository.save(updatedUser);
+    return { success: true, message: UserMessage.update };
+  }
+
   async findUserByEmail(email: string) {
     return await this.userRepository.findOne({
       where: { email },
