@@ -28,7 +28,12 @@ export class UsersService {
     newUser.avatar = createUserDto.avatar;
     newUser.bio = createUserDto.bio;
     // Save the new user instance to the repository and return the result
-    return await this.userRepository.save(newUser);
+    const result = await this.userRepository.save(newUser);
+    return {
+      id: result.id,
+      success: true,
+      messgae: UserMessage.create + result.id,
+    };
   }
 
   async followUser(userId: number, followedUserId: number) {
@@ -38,7 +43,16 @@ export class UsersService {
     const followedUser = await this.findUserById(followedUserId);
     // If either user is not found, throw an exception with a not found status
     if (!user || !followedUser || userId === followedUserId)
-      throw new HttpException(UserMessage.notFound, HttpStatus.NOT_FOUND);
+      throw new HttpException(UserMessage.unableUser, HttpStatus.NOT_FOUND);
+
+    // Find the follow relationship between the two users
+    const followItem = await this.followRepository.findOne({
+      where: { follower: { id: user.id }, following: { id: followedUser.id } },
+    });
+
+    // If the user was followed, we will return an error
+    if (followItem)
+      throw new HttpException(UserMessage.unableUser, HttpStatus.CONFLICT);
 
     // Create a new Follow instance and set the follower and following properties
     const newFollow = new Follow();
@@ -46,7 +60,9 @@ export class UsersService {
     newFollow.following = followedUser;
 
     // Save the new Follow instance to the repository and return the result
-    return await this.followRepository.save(newFollow);
+    const followResult = await this.followRepository.save(newFollow);
+
+    return { success: true, messgae: UserMessage.follow };
   }
 
   async unfollowUser(userId: number, followedUserId: number) {
@@ -69,7 +85,57 @@ export class UsersService {
     // Delete the follow relationship using the primary key of followItem
     const deleteResult = await this.followRepository.delete(followItem.id);
     // Return the result of the delete operation
-    return { success: true, messgae: 'The user was unfollowed' };
+    return { success: true, messgae: UserMessage.unFollow };
+  }
+
+  async getUserFollowDetails(id: number) {
+    // Find the user by ID
+    const user = await this.findUserById(id);
+    // If user is not found, throw an exception
+    if (!user) {
+      throw new HttpException(UserMessage.notFound, HttpStatus.NOT_FOUND);
+    }
+
+    // Get the list of users the user is following
+    const following = await this.followRepository.find({
+      where: { follower: { id: user.id } },
+      relations: ['following'],
+      select: {
+        following: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+          role: true,
+          created_at: true,
+          updated_at: true,
+        },
+      },
+    });
+    // Get the list of users following the user
+    const followers = await this.followRepository.find({
+      where: { following: { id: user.id } },
+      relations: ['follower'],
+      select: {
+        following: {
+          id: true,
+          name: true,
+          email: true,
+          avatar: true,
+          role: true,
+          created_at: true,
+          updated_at: true,
+        },
+      },
+    });
+    // Extract the user entities from the follow entities
+    const followingUsers = following.map((follow) => follow.following);
+    const followerUsers = followers.map((follow) => follow.follower);
+
+    return {
+      following: followingUsers,
+      followers: followerUsers,
+    };
   }
 
   async findUserByEmail(email: string) {

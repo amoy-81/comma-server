@@ -33,6 +33,7 @@ export class UsersController {
   //   return this.usersService.remove(id);
   // }
 
+  // For test
   @Post('user')
   async createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createUser(createUserDto);
@@ -40,6 +41,11 @@ export class UsersController {
 
   @Post('follow')
   async follow(@Body() { userId, fId }: { userId: number; fId: number }) {
-    return this.usersService.unfollowUser(userId, fId);
+    return this.usersService.followUser(userId, fId);
+  }
+
+  @Post('userselect')
+  async getUserr(@Body() { userId }: { userId: number }) {
+    return this.usersService.getUserFollowDetails(userId);
   }
 }

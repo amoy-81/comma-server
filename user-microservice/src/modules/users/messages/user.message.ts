@@ -4,4 +4,5 @@ export const UserMessage = {
   alreadyExists: 'user already exists',
   follow: 'The user was added to the list of followers',
   unFollow: 'The user was removed from the list of followers',
+  create: 'A new user has been successfully created, ID ',
 };
