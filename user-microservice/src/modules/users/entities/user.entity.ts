@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Follow } from './follow.entity';
+import { Following } from './following.entity';
 
 export enum UserRoles {
   NORMAL_USER = 'NORMAL_USER',
@@ -38,11 +38,11 @@ export class User {
   @Column({ default: 'Comma User!' })
   bio: string;
 
-  @OneToMany(() => Follow, (follow) => follow.follower)
-  following: Follow[];
+  @OneToMany(() => Following, (follow) => follow.follower)
+  following: Following[];
 
-  @OneToMany(() => Follow, (follow) => follow.following)
-  followers: Follow[];
+  @OneToMany(() => Following, (follow) => follow.following)
+  followers: Following[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

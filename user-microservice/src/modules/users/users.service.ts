@@ -4,15 +4,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserMessage } from './messages/user.message';
-import { Follow } from './entities/follow.entity';
+import { Following } from './entities/following.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(Follow)
-    private readonly followRepository: Repository<Follow>,
+    @InjectRepository(Following)
+    private readonly followRepository: Repository<Following>,
   ) {}
   async createUser(createUserDto: CreateUserDto) {
     // Check if a user with the given email already exists in the repository
@@ -55,7 +55,7 @@ export class UsersService {
       throw new HttpException(UserMessage.unableUser, HttpStatus.CONFLICT);
 
     // Create a new Follow instance and set the follower and following properties
-    const newFollow = new Follow();
+    const newFollow = new Following();
     newFollow.follower = user;
     newFollow.following = followedUser;
 

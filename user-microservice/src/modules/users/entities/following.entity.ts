@@ -16,8 +16,8 @@ export enum UserRoles {
   SUPER_USER = 'SUPER_USER',
 }
 
-@Entity({ name: 'follow' })
-export class Follow {
+@Entity({ name: 'following' })
+export class Following {
   @PrimaryGeneratedColumn()
   id: number;
 
