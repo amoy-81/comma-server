@@ -1,5 +1,7 @@
 import {
+  Column,
   CreateDateColumn,
+  Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -13,6 +15,7 @@ export enum UserRoles {
   SUPER_USER = 'SUPER_USER',
 }
 
+@Entity({ name: 'follow' })
 export class Follow {
   @PrimaryGeneratedColumn()
   id: number;
