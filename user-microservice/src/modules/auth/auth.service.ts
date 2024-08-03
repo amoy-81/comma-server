@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { RegisterDTO } from './dto/register.dto';
+import { UsersService } from '../users/users.service';
+import { AuthMessage } from './messages/auth.message';
+import * as bcrypt from 'bcrypt';
+import { LoginDTO } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(private readonly userService: UsersService) {}
+  async register(registerDto: RegisterDTO) {
+    // Check if a user with the given email already exists
+    const existingUser = await this.userService.findUserByEmail(
+      registerDto.email,
+    );
+    if (existingUser)
+      throw new HttpException(AuthMessage.alreadyExists, HttpStatus.CONFLICT);
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    registerDto.password = hashedPassword;
+
+    const createUserResult = await this.userService.createUser(registerDto);
+
+    return createUserResult;
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async login(loginDto: LoginDTO) {
+    // Find the user by email
+    const user = await this.userService.findUserByEmail(loginDto.email);
+    if (!user) {
+      throw new HttpException(AuthMessage.notFound, HttpStatus.UNAUTHORIZED);
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    // Compare the provided password with the stored hashed password
+    const isPasswordValid = await bcrypt.compare(
+      loginDto.password,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw new HttpException(
+        AuthMessage.notMatchPassword,
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
+    return user;
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
+  //  TODO: Google login
 }

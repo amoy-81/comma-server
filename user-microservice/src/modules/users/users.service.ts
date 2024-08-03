@@ -25,8 +25,7 @@ export class UsersService {
     newUser.name = createUserDto.name;
     newUser.email = createUserDto.email;
     newUser.password = createUserDto.password;
-    newUser.avatar = createUserDto.avatar;
-    newUser.bio = createUserDto.bio;
+    newUser.avatar = createUserDto.avatar ?? null;
     // Save the new user instance to the repository and return the result
     const result = await this.userRepository.save(newUser);
     return {
