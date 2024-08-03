@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
-import { UserModule } from './modules/user/user.module';
 import { join } from 'path';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -12,13 +11,13 @@ import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { AudioCallModule } from './modules/audio-call/audio-call.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
     AuthModule,
-    UserModule,
-    PostModule,
-    CommentModule,
+    UsersModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       path: 'master',
       driver: ApolloDriver,
@@ -30,22 +29,34 @@ import { AudioCallModule } from './modules/audio-call/audio-call.module';
       // introspection: true,
       // cache: 'bounded',
     }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        const options: MongooseModuleOptions = {
-          uri: configService.get<string>('DB_URL'),
-        };
-
-        return options;
-      },
+    // MongooseModule.forRootAsync({
+      //   imports: [ConfigModule],
+      //   inject: [ConfigService],
+      //   useFactory: (configService: ConfigService) => {
+        //     const options: MongooseModuleOptions = {
+    //       uri: configService.get<string>('DB_URL'),
+    //     };
+    
+    //     return options;
+    //   },
+    // }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',
+      password: '0911',
+      database: 'comma-users',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
     }),
     ConfigModule.forRoot({
       cache: true,
     }),
-    ChatModule,
-    AudioCallModule,
+    // PostModule,
+    // CommentModule,
+    // ChatModule,
+    // AudioCallModule,
   ],
   controllers: [AppController],
   providers: [AppService],
