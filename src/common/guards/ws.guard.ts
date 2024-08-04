@@ -1,11 +1,11 @@
 import { CanActivate, Injectable, Optional } from '@nestjs/common';
-import { UserService } from '../../modules/user/user.service';
+import { UsersService } from 'src/modules/users/users.service';
 import { verify } from 'jsonwebtoken';
 import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class WsGuard implements CanActivate {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UsersService) {}
   canActivate(context: any): any {
     return true;
   }

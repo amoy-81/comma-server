@@ -9,9 +9,7 @@ export class RegisterDTO {
   @IsNotEmpty()
   email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  password: string;
+  password: string | null;
 
   avatar: string;
 }
