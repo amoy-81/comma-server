@@ -143,7 +143,17 @@ export class UsersService {
     }
 
     // Exclude the password field from the update data if it is present
-    const { password, email, ...updateData } = updateUserDto;
+    const {
+      id: userID,
+      password,
+      email,
+      followers,
+      following,
+      created_at,
+      updated_at,
+      role,
+      ...updateData
+    } = updateUserDto;
 
     // Merge the existing user with the new data (only provided fields will overwrite)
     const updatedUser = this.userRepository.merge(existingUser, updateData);
@@ -151,6 +161,23 @@ export class UsersService {
     // Save the updated user back to the database
     const result = await this.userRepository.save(updatedUser);
     return { success: true, message: UserMessage.update };
+  }
+
+  async searchUsers(page: number, limit: number, name?: string) {
+    const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+    if (name) {
+      queryBuilder.andWhere('user.name LIKE :name', { name: `%${name}%` });
+    }
+
+    queryBuilder.skip((page - 1) * limit).take(limit);
+
+    const users = await queryBuilder.getMany();
+
+    return users.map((user) => {
+      const { password, ...result } = user;
+      return result;
+    });
   }
 
   async findUserByEmail(email: string) {
