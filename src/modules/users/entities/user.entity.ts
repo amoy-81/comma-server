@@ -7,6 +7,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Following } from './following.entity';
+import { Post } from 'src/modules/post/entities/post.entity';
+import { Like } from 'src/modules/post/entities/like.entity';
 
 export enum UserRoles {
   NORMAL_USER = 'NORMAL_USER',
@@ -43,6 +45,12 @@ export class User {
 
   @OneToMany(() => Following, (follow) => follow.following)
   followers: Following[];
+
+  @OneToMany(() => Post, (post) => post.user)
+  posts: Post[];
+
+  @OneToMany(() => Like, (like) => like.user)
+  likes: Like[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

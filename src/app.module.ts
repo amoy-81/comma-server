@@ -13,11 +13,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 // import { AudioCallModule } from './modules/audio-call/audio-call.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './modules/users/users.module';
+import { PostModule } from './modules/post/post.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
+    PostModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     //   path: 'master',
     //   driver: ApolloDriver,
@@ -30,13 +32,13 @@ import { UsersModule } from './modules/users/users.module';
     //   // cache: 'bounded',
     // }),
     // MongooseModule.forRootAsync({
-      //   imports: [ConfigModule],
-      //   inject: [ConfigService],
-      //   useFactory: (configService: ConfigService) => {
-        //     const options: MongooseModuleOptions = {
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => {
+    //     const options: MongooseModuleOptions = {
     //       uri: configService.get<string>('DB_URL'),
     //     };
-    
+
     //     return options;
     //   },
     // }),

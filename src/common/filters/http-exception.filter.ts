@@ -33,6 +33,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
           : (message as any).message || message,
     };
 
+    console.log(exception , "<====== EX");
+
     response.status(status).json(errorResponse);
   }
 }

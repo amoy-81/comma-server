@@ -1,7 +1,9 @@
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-export class CreatePostDto {
-  user_id: number;
+export class CreatePostInput {
+  @IsNotEmpty()
+  @IsString()
   text_content: string;
   image_content: string;
+  user_id: number;
 }

@@ -6,16 +6,15 @@ import {
   CreateDateColumn,
   OneToMany,
   JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Like } from './like.entity';
+import { User } from 'src/modules/users/entities/user.entity';
 
 @Entity({ name: 'posts' })
 export class Post {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
-  user_id: number;
 
   @Column()
   text_content: string;
@@ -25,6 +24,10 @@ export class Post {
 
   @OneToMany(() => Like, (like) => like.post)
   like: Like;
+
+  @ManyToOne(() => User, (user) => user.posts)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

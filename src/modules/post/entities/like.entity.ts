@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Post } from './post.entity';
+import { User } from 'src/modules/users/entities/user.entity';
 
 @Entity({ name: 'likes' })
 export class Like {
@@ -19,6 +20,10 @@ export class Like {
 
   @Column({ name: 'post_id' })
   postId: number;
+
+  @ManyToOne(() => User, (user) => user.likes)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @ManyToOne(() => Post, (post) => post.like)
   @JoinColumn({ name: 'post_id' })
