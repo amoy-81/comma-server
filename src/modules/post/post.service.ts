@@ -40,6 +40,7 @@ export class PostService {
     return this.postsRepository
       .createQueryBuilder('posts')
       .leftJoinAndSelect('posts.user', 'user')
+      .loadRelationCountAndMap('posts.likeCount', 'posts.like')
       .where((qb) => {
         const subQuery = qb
           .subQuery()
@@ -74,6 +75,7 @@ export class PostService {
       .createQueryBuilder('posts')
       .where('posts.user_id = :userId', { userId })
       .leftJoinAndSelect('posts.user', 'user')
+      .loadRelationCountAndMap('posts.likeCount', 'posts.like')
       .select([
         'posts.id',
         'posts.text_content',
@@ -102,11 +104,11 @@ export class PostService {
 
     followingUserIds.push(userId);
 
-    console.log(followingUserIds);
     return this.postsRepository
       .createQueryBuilder('posts')
       .where('posts.user_id IN (:...followingUserIds)', { followingUserIds })
       .leftJoinAndSelect('posts.user', 'user')
+      .loadRelationCountAndMap('posts.likeCount', 'posts.like')
       .select([
         'posts.id',
         'posts.text_content',
