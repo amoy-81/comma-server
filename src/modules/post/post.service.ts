@@ -131,6 +131,7 @@ export class PostService {
       .createQueryBuilder('posts')
       .where('posts.id = :id', { id })
       .leftJoinAndSelect('posts.user', 'user')
+      .loadRelationCountAndMap('posts.likeCount', 'posts.like')
       .select([
         'posts.id',
         'posts.text_content',

@@ -15,9 +15,6 @@ export class Vote {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  type: 'up' | 'down';
-
   @Column({ name: 'comment_id' })
   commentId: number;
 

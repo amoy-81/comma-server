@@ -42,4 +42,6 @@ export class Comment {
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  hasVoted: boolean;
 }

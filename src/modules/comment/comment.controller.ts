@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -29,11 +30,24 @@ export class CommentController {
   }
 
   @Get('list/:id')
+  @UseGuards(JwtAuthGuard)
   getPostCommentList(
+    @Req() req: any,
     @Param('id', ParseIntPipe) postId: number,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
     const { page = 1, pageSize = 6 } = paginationQuery;
-    return this.commentService.getPostComments(postId, page, pageSize);
+    return this.commentService.getPostComments(
+      postId,
+      req.user.id,
+      page,
+      pageSize,
+    );
+  }
+
+  @Put('vote/:id')
+  @UseGuards(JwtAuthGuard)
+  vote(@Req() req: any, @Param('id', ParseIntPipe) commentId: number) {
+    return this.commentService.toggleVote(req.user.id, commentId);
   }
 }
