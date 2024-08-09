@@ -8,7 +8,7 @@ import {
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostMessage } from './messages/post.message';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { Like } from './entities/like.entity';
 import { UsersService } from '../users/users.service';
@@ -67,11 +67,12 @@ export class PostService {
   }
 
   async getUserPosts(
+    loginUser: number,
     userId: number,
     page: number,
     pageSize: number,
   ): Promise<Post[]> {
-    return this.postsRepository
+    const postsList = await this.postsRepository
       .createQueryBuilder('posts')
       .where('posts.user_id = :userId', { userId })
       .leftJoinAndSelect('posts.user', 'user')
@@ -91,6 +92,8 @@ export class PostService {
       .skip((page - 1) * pageSize)
       .take(pageSize)
       .getMany();
+
+    return await this.addHasLikeInList(postsList, loginUser);
   }
 
   async getFollowingUserPosts(
@@ -104,7 +107,7 @@ export class PostService {
 
     followingUserIds.push(userId);
 
-    return this.postsRepository
+    const postsList = await this.postsRepository
       .createQueryBuilder('posts')
       .where('posts.user_id IN (:...followingUserIds)', { followingUserIds })
       .leftJoinAndSelect('posts.user', 'user')
@@ -124,6 +127,25 @@ export class PostService {
       .skip((page - 1) * pageSize)
       .take(pageSize)
       .getMany();
+
+    return await this.addHasLikeInList(postsList, userId);
+  }
+
+  async addHasLikeInList(postsList: Post[], userId: number) {
+    const postIds = postsList.map((post) => post.id);
+
+    const userLikes = await this.likeRepository.find({
+      where: {
+        postId: In(postIds),
+        user_id: userId,
+      },
+    });
+
+    postsList.forEach((post) => {
+      post.hasLike = !!userLikes.find((like) => like.postId === post.id);
+    });
+
+    return postsList;
   }
 
   getOnePostById(id: number) {
@@ -199,9 +221,5 @@ export class PostService {
       pageSize,
       users: likes.map((like) => like.user),
     };
-  }
-
-  async getLike() {
-    return this.likeRepository.find({ relations: { post: true } });
   }
 }

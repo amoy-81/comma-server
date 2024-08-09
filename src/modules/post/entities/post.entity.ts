@@ -38,4 +38,6 @@ export class Post {
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
+
+  hasLike: boolean;
 }

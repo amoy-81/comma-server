@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   HttpCode,
-  Inject,
   Param,
   ParseIntPipe,
   Post,
@@ -19,7 +18,6 @@ import {
 import { PostService } from './post.service';
 import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CreatePostDto } from './dto/create-post.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { saveInStorage } from 'src/common/firebase/firebase.util';
 import { CreatePostInput } from './dto/createPostInput';
@@ -56,7 +54,7 @@ export class PostController {
   getUserPosts(@Req() req: any, @Query() query: PostsPaginationQueryDto) {
     const { userId, page = 1, pageSize = 5 } = query;
     if (userId) {
-      return this.postService.getUserPosts(userId, page, pageSize);
+      return this.postService.getUserPosts(req.user.id, userId, page, pageSize);
     } else {
       return this.postService.getFollowingUserPosts(
         req.user.id,
@@ -94,10 +92,5 @@ export class PostController {
   ) {
     const { page = 1, pageSize = 6 } = paginationQuery;
     return this.postService.getPostLikes(postId, page, pageSize);
-  }
-
-  @Get('likes')
-  async likes() {
-    return this.postService.getLike();
   }
 }
