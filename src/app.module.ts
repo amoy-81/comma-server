@@ -14,6 +14,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './modules/users/users.module';
 import { PostModule } from './modules/post/post.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
   imports: [
@@ -56,7 +57,7 @@ import { PostModule } from './modules/post/post.module';
       cache: true,
     }),
     // PostModule,
-    // CommentModule,
+    CommentModule,
     // ChatModule,
     // AudioCallModule,
   ],

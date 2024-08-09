@@ -9,6 +9,8 @@ import {
 import { Following } from './following.entity';
 import { Post } from 'src/modules/post/entities/post.entity';
 import { Like } from 'src/modules/post/entities/like.entity';
+import { Comment } from 'src/modules/comment/entities/comment.entity';
+import { Vote } from 'src/modules/comment/entities/vote.entity';
 
 export enum UserRoles {
   NORMAL_USER = 'NORMAL_USER',
@@ -51,6 +53,12 @@ export class User {
 
   @OneToMany(() => Like, (like) => like.user)
   likes: Like[];
+
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
+
+  @OneToMany(() => Vote, (vote) => vote.user)
+  votes: Vote[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -2,36 +2,35 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
   CreateDateColumn,
-  OneToMany,
-  JoinColumn,
+  UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
-import { Like } from './like.entity';
+import { Comment } from './comment.entity';
 import { User } from 'src/modules/users/entities/user.entity';
-import { Comment } from 'src/modules/comment/entities/comment.entity';
 
-@Entity({ name: 'posts' })
-export class Post {
+@Entity({ name: 'votes' })
+export class Vote {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  text_content: string;
+  type: 'up' | 'down';
 
-  @Column({ nullable: true })
-  image_content: string;
+  @Column({ name: 'comment_id' })
+  commentId: number;
 
-  @OneToMany(() => Like, (like) => like.post)
-  like: Like;
+  @Column({ name: 'user_id' })
+  userId: number;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => Comment, (comment) => comment.votes)
+  @JoinColumn({ name: 'comment_id' })
+  comment: Comment;
+
+  @ManyToOne(() => User, (user) => user.votes)
   @JoinColumn({ name: 'user_id' })
   user: User;
-
-  @OneToMany(() => Comment, (comment) => comment.post)
-  comments: Comment[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
