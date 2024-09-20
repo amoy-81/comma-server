@@ -23,10 +23,13 @@ export class Post {
   @Column({ nullable: true })
   image_content: string;
 
+  @Column({ name: 'user_id' })
+  userId: number;
+
   @OneToMany(() => Like, (like) => like.post)
   like: Like;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.posts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

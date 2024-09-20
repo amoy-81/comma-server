@@ -222,4 +222,22 @@ export class PostService {
       users: likes.map((like) => like.user),
     };
   }
+
+  async deletePost(userId: number, postId: number) {
+    const result = await this.postsRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Post)
+      .where('id = :postId AND user_id = :userId', {
+        postId,
+        userId,
+      })
+      .execute();
+
+    if (result && result.affected) {
+      return { message: 'post delete success', op: 'DELETE' };
+    } else {
+      throw new HttpException('post is not valid', HttpStatus.BAD_REQUEST);
+    }
+  }
 }

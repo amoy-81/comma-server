@@ -21,11 +21,11 @@ export class Vote {
   @Column({ name: 'user_id' })
   userId: number;
 
-  @ManyToOne(() => Comment, (comment) => comment.votes)
+  @ManyToOne(() => Comment, (comment) => comment.votes, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'comment_id' })
   comment: Comment;
 
-  @ManyToOne(() => User, (user) => user.votes)
+  @ManyToOne(() => User, (user) => user.votes, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

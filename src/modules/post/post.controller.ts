@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -92,5 +93,11 @@ export class PostController {
   ) {
     const { page = 1, pageSize = 6 } = paginationQuery;
     return this.postService.getPostLikes(postId, page, pageSize);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  deletePostById(@Req() req: any, @Param('id', ParseIntPipe) postId: number) {
+    return this.postService.deletePost(req.user.id, postId);
   }
 }
