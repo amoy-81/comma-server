@@ -13,7 +13,7 @@ import {
 import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/login.dto';
 import { GoogleOauthGuard } from 'src/common/guards/google-oauth.guard';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { RegisterInputs } from './dto/register.inputs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { saveInStorage } from 'src/common/firebase/firebase.util';

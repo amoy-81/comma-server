@@ -11,6 +11,8 @@ import { Post } from 'src/modules/post/entities/post.entity';
 import { Like } from 'src/modules/post/entities/like.entity';
 import { Comment } from 'src/modules/comment/entities/comment.entity';
 import { Vote } from 'src/modules/comment/entities/vote.entity';
+import { Board } from 'src/modules/board/entities/board.entity';
+import { Exclude } from 'class-transformer';
 
 export enum UserRoles {
   NORMAL_USER = 'NORMAL_USER',
@@ -31,6 +33,7 @@ export class User {
   email: string;
 
   @Column({ nullable: true })
+  @Exclude()
   password: string;
 
   @Column({ nullable: true })
@@ -59,6 +62,9 @@ export class User {
 
   @OneToMany(() => Vote, (vote) => vote.user)
   votes: Vote[];
+
+  @OneToMany(() => Board, (board) => board.user)
+  boardWorks: Board[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
