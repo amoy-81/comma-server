@@ -17,6 +17,7 @@ import { Request, Response } from 'express';
 import { RegisterInputs } from './dto/register.inputs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { saveInStorage } from 'src/common/firebase/firebase.util';
+import { ChangePasswordDTO } from './dto/change-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -88,5 +89,11 @@ export class AuthController {
       secure: true,
       httpOnly: true,
     });
+  }
+
+  @Post('changepassword')
+  @HttpCode(200)
+  async changePass(@Req() req: any, @Body() dto: ChangePasswordDTO) {
+    return this.authService.changePassword(dto, req?.user?.id);
   }
 }

@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDTO } from './dto/login.dto';
 import { User } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { ChangePasswordDTO } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -80,6 +81,30 @@ export class AuthService {
         password: null,
         avatar: user.avatar,
       });
+  }
+
+  async changePassword(dto: ChangePasswordDTO, userId: number) {
+    const user = await this.userService.findUserById(userId);
+
+    const isOldPasswordValid = await bcrypt.compare(
+      dto.old_password,
+      user.password,
+    );
+
+    if (!isOldPasswordValid) {
+      throw new HttpException(
+        AuthMessage.notMatchPassword,
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    const newHashedPassword = await bcrypt.hash(dto.new_password, 10);
+
+    user.password = newHashedPassword;
+
+    await this.userService.changePassword(userId, newHashedPassword);
+
+    return { success: true, message: AuthMessage.successChangePass };
   }
 
   generateToken(user: User) {

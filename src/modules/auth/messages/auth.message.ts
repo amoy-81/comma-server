@@ -6,4 +6,5 @@ export const AuthMessage = {
   unauthorized: 'Unauthorized operation',
   refreshTokenSuccess: 'A new token has been created',
   alreadyExists: 'Another user already has an account with this email',
+  successChangePass: 'Password changed with success',
 };

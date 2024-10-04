@@ -191,4 +191,12 @@ export class UsersService {
       where: { id },
     });
   }
+
+  async changePassword(userId: number, newPassword: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    user.password = newPassword;
+
+    return await this.userRepository.save(user);
+  }
 }

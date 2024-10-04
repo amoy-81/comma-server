@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -12,8 +11,6 @@ import { Post } from 'src/modules/post/entities/post.entity';
 import { Like } from 'src/modules/post/entities/like.entity';
 import { Comment } from 'src/modules/comment/entities/comment.entity';
 import { Vote } from 'src/modules/comment/entities/vote.entity';
-import { ChatRoom } from 'src/modules/chat/entities/chat-room.entity';
-import { Chat } from 'src/modules/chat/entities/chat.entity';
 
 export enum UserRoles {
   NORMAL_USER = 'NORMAL_USER',
@@ -62,18 +59,6 @@ export class User {
 
   @OneToMany(() => Vote, (vote) => vote.user)
   votes: Vote[];
-
-  @ManyToMany(() => ChatRoom, (chatRoom) => chatRoom.owner)
-  chatRooms: ChatRoom[];
-
-  @ManyToMany(() => ChatRoom, (chatRoom) => chatRoom.admins)
-  managesGroup: ChatRoom[];
-
-  @ManyToMany(() => ChatRoom, (chatRoom) => chatRoom.members)
-  groups: ChatRoom[];
-
-  @OneToMany(() => Chat, (repo) => repo.author)
-  messages: Chat[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
