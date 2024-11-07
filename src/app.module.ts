@@ -8,6 +8,7 @@ import { UsersModule } from './modules/users/users.module';
 import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { BoardModule } from './modules/board/board.module';
+import { NewsPaperModule } from './modules/news-paper/news-paper.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { BoardModule } from './modules/board/board.module';
     PostModule,
     CommentModule,
     BoardModule,
+    NewsPaperModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.PG_HOST,

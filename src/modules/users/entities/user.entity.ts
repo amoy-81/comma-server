@@ -13,6 +13,7 @@ import { Comment } from 'src/modules/comment/entities/comment.entity';
 import { Vote } from 'src/modules/comment/entities/vote.entity';
 import { Board } from 'src/modules/board/entities/board.entity';
 import { Exclude } from 'class-transformer';
+import { NewsPaper } from 'src/modules/news-paper/entities/news-paper.entity';
 
 export enum UserRoles {
   NORMAL_USER = 'NORMAL_USER',
@@ -65,6 +66,9 @@ export class User {
 
   @OneToMany(() => Board, (board) => board.user)
   boardWorks: Board[];
+
+  @OneToMany(() => NewsPaper, (newsPaper) => newsPaper.user)
+  newsPapers: NewsPaper[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

@@ -11,6 +11,8 @@ export class BoardService {
     @InjectRepository(Board) private readonly boardRepo: Repository<Board>,
   ) {}
   async create(createBoardDto: CreateBoardDto) {
+    const { text, userId } = createBoardDto;
+
     const countOfBoardItems = await this.boardRepo.count();
 
     if (countOfBoardItems >= 10) {
@@ -22,7 +24,7 @@ export class BoardService {
       await this.boardRepo.delete(olderItem.id);
     }
 
-    const newItem = this.boardRepo.create(createBoardDto);
+    const newItem = this.boardRepo.create({ text, userId });
 
     return await this.boardRepo.save(newItem);
   }

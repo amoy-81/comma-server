@@ -1,14 +1,25 @@
-import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { PaginationQueryDto } from '../post/dto/pagination-dto';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
 
   @Post()
-  create(@Body() createBoardDto: CreateBoardDto) {
+  @UseGuards(JwtAuthGuard)
+  create(@Req() req: any, @Body() createBoardDto: CreateBoardDto) {
+    createBoardDto.userId = req?.user?.id;
     return this.boardService.create(createBoardDto);
   }
 
