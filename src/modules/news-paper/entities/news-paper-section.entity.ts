@@ -20,7 +20,7 @@ export class NewsPaperSection {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'news_paper_id' })
+  @Column()
   newsPaperId: number;
 
   @ManyToOne(() => NewsPaper, (newPaper) => newPaper.sections)
