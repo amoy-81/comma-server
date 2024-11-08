@@ -4,13 +4,17 @@ import { UsersService } from '../users/users.service';
 import { AuthMessage } from './messages/auth.message';
 import * as bcrypt from 'bcrypt';
 import { LoginDTO } from './dto/login.dto';
-import { User } from '../users/entities/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import { ChangePasswordDTO } from './dto/change-password.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Auth } from './entities/auth.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @InjectRepository(Auth) private readonly authRepo: Repository<Auth>,
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
@@ -30,10 +34,13 @@ export class AuthService {
 
     const createUserResult = await this.userService.createUser(registerDto);
 
-    const { token } = this.generateToken(createUserResult);
+    const { accessToken, refreshToken } = await this.generateToken(
+      createUserResult.id,
+    );
+
     const { password, ...userData } = createUserResult;
 
-    return { token, user: userData };
+    return { accessToken, refreshToken, user: userData };
   }
 
   async login(loginDto: LoginDTO) {
@@ -55,11 +62,11 @@ export class AuthService {
       );
     }
 
-    const { token } = this.generateToken(user);
+    const { accessToken, refreshToken } = await this.generateToken(user.id);
 
     const { password, ...userData } = user;
 
-    return { token, user: userData };
+    return { accessToken, refreshToken, user: userData };
   }
 
   async googleLogin(user: any) {
@@ -69,8 +76,12 @@ export class AuthService {
     // if there is a user, a token will be issued to her
     if (findedUser) {
       const { password, ...userData } = findedUser;
-      const { token } = this.generateToken(findedUser);
-      return { token, user: userData };
+
+      const { accessToken, refreshToken } = await this.generateToken(
+        findedUser.id,
+      );
+
+      return { accessToken, refreshToken, user: userData };
     }
 
     // if the user does not exist, register
@@ -107,11 +118,64 @@ export class AuthService {
     return { success: true, message: AuthMessage.successChangePass };
   }
 
-  generateToken(user: User) {
-    // generate access token with 30 days expiration
-    const token = this.jwtService.sign({ id: user.id }, { expiresIn: '30d' });
+  async getSession(sessionId: string) {
+    return await this.authRepo.findOne({ where: { sessionId } });
+  }
 
-    // return token values
-    return { token };
+  // Refresh Token Service
+  async refreshToken(rt: string) {
+    // decrypt
+    const { type, sessionId } = this.jwtService.decode(rt);
+
+    if (!type || !sessionId || type !== 'REFRESH_TOKEN')
+      throw new HttpException('Token is Not Valid', HttpStatus.UNAUTHORIZED);
+
+    // get session from db
+    const session = await this.authRepo.findOne({ where: { sessionId } });
+
+    if (!session || session.expireDate < new Date()) {
+      await this.authRepo.delete(session.sessionId);
+      throw new HttpException('Session Expired', HttpStatus.UNAUTHORIZED);
+    }
+
+    // update expired date
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + 7);
+
+    session.expireDate = expiration;
+
+    await this.authRepo.save(session);
+
+    // new Token and refreshToken
+    const accessToken = this.jwtService.sign(
+      { sessionId: session.sessionId, type: 'ACCESS_TOKEN' },
+      { expiresIn: '1h' },
+    );
+
+    const refreshToken = this.jwtService.sign(
+      { sessionId: session.sessionId, type: 'REFRESH_TOKEN' },
+      { expiresIn: '7d' },
+    );
+
+    return { accessToken, refreshToken };
+  }
+  // whoIm Service
+
+  async generateToken(userId: number) {
+    const newSession = this.authRepo.create({ userId });
+
+    const resalt = await this.authRepo.save(newSession);
+
+    const accessToken = this.jwtService.sign(
+      { sessionId: resalt.sessionId, type: 'ACCESS_TOKEN' },
+      { expiresIn: '1h' },
+    );
+
+    const refreshToken = this.jwtService.sign(
+      { sessionId: resalt.sessionId, type: 'REFRESH_TOKEN' },
+      { expiresIn: '7d' },
+    );
+
+    return { accessToken, refreshToken };
   }
 }

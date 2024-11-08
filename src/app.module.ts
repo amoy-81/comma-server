@@ -9,6 +9,7 @@ import { PostModule } from './modules/post/post.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { BoardModule } from './modules/board/board.module';
 import { NewsPaperModule } from './modules/news-paper/news-paper.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -27,10 +28,14 @@ import { NewsPaperModule } from './modules/news-paper/news-paper.module';
       database: process.env.PG_DATABASE,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
     ConfigModule.forRoot({
       cache: true,
     }),
+    CacheModule.register({ isGlobal: true }),
   ],
   controllers: [AppController],
   providers: [AppService],

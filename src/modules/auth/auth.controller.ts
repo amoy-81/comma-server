@@ -18,6 +18,7 @@ import { RegisterInputs } from './dto/register.inputs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { saveInStorage } from 'src/common/firebase/firebase.util';
 import { ChangePasswordDTO } from './dto/change-password.dto';
+import { RefreshTokenDto } from './dto/token.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -37,10 +38,12 @@ export class AuthController {
     req.user.avatar = req.user.picture;
 
     // try create new user or get existed one by email
-    const { token } = await this.authService.googleLogin(req.user);
+    const { accessToken, refreshToken } = await this.authService.googleLogin(
+      req.user,
+    );
 
     // if authentication is successful then set cookies and send response
-    this.setCookie(res, 'a_t', token);
+    // this.setCookie(res, 'a_t', token);
 
     // TODO : add front end login url
     return res.redirect(`http://localhost:4000/auth/login/verify`);
@@ -63,9 +66,6 @@ export class AuthController {
     // create new user in db
     const result = await this.authService.register(registerInputs);
 
-    // Set access token in cookie
-    this.setCookie(res, 'a_t', result.token);
-
     // return response with token, userDatas
     return res.status(201).json(result);
   }
@@ -75,20 +75,13 @@ export class AuthController {
   async login(@Res() res: Response, @Body() createAuthDto: LoginDTO) {
     // Login user by email and password
     const result = await this.authService.login(createAuthDto);
-    // Set access token in cookie
-    this.setCookie(res, 'a_t', result.token);
-    // return response with token, userDatas
     return res.status(200).json(result);
   }
 
-  private setCookie(res: Response, name: string, token: string) {
-    // set cookie with jwt access token to client browser
-    res.cookie(name, token, {
-      maxAge: 1000 * 60 * 60 * 24 * 30,
-      sameSite: true,
-      secure: true,
-      httpOnly: true,
-    });
+  @Post('token')
+  @HttpCode(200)
+  refreshToken(@Body() { refreshToken }: RefreshTokenDto) {
+    return this.authService.refreshToken(refreshToken);
   }
 
   @Post('changepassword')
