@@ -5,8 +5,8 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
-import { GoogleStrategy } from 'src/common/strategys/google.strategy';
-import { JwtStrategy } from 'src/common/strategys/jwt.strategy';
+import { GoogleStrategy } from '../../common/strategys/google.strategy';
+import { JwtStrategy } from '../../common/strategys/jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Auth } from './entities/auth.entity';
 

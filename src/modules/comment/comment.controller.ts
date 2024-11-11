@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentInput } from './dto/create-comment-input';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PaginationQueryDto } from '../post/dto/pagination-dto';
 
 @Controller('comment')

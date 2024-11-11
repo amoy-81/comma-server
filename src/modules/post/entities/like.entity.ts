@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Post } from './post.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../../modules/users/entities/user.entity';
 
 @Entity({ name: 'likes' })
 export class Like {

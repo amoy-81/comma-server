@@ -8,7 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Comment } from './comment.entity';
-import { User } from 'src/modules/users/entities/user.entity';
+import { User } from '../../../modules/users/entities/user.entity';
 
 @Entity({ name: 'votes' })
 export class Vote {

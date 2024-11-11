@@ -7,13 +7,13 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Following } from './following.entity';
-import { Post } from 'src/modules/post/entities/post.entity';
-import { Like } from 'src/modules/post/entities/like.entity';
-import { Comment } from 'src/modules/comment/entities/comment.entity';
-import { Vote } from 'src/modules/comment/entities/vote.entity';
-import { Board } from 'src/modules/board/entities/board.entity';
+import { Post } from '../../../modules/post/entities/post.entity';
+import { Like } from '../../../modules/post/entities/like.entity';
+import { Comment } from '../../../modules/comment/entities/comment.entity';
+import { Vote } from '../../../modules/comment/entities/vote.entity';
+import { Board } from '../../../modules/board/entities/board.entity';
 import { Exclude } from 'class-transformer';
-import { NewsPaper } from 'src/modules/news-paper/entities/news-paper.entity';
+import { NewsPaper } from '../../../modules/news-paper/entities/news-paper.entity';
 
 export enum UserRoles {
   NORMAL_USER = 'NORMAL_USER',

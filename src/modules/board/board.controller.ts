@@ -10,7 +10,7 @@ import {
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { PaginationQueryDto } from '../post/dto/pagination-dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('board')
 export class BoardController {

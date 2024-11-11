@@ -1,5 +1,5 @@
 import { CanActivate, Injectable, Optional } from '@nestjs/common';
-import { UsersService } from 'src/modules/users/users.service';
+import { UsersService } from '../../modules/users/users.service';
 import { verify } from 'jsonwebtoken';
 import { WsException } from '@nestjs/websockets';
 

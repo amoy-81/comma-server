@@ -13,9 +13,9 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { NewsPaperService } from './news-paper.service';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CreateNewsPaperSectionDto } from './dto/create-news-paper-section.dto';
-import { saveInStorage } from 'src/common/firebase/firebase.util';
+import { saveInStorage } from '../../common/firebase/firebase.util';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PaginationQueryDto } from '../post/dto/pagination-dto';
 

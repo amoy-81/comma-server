@@ -9,8 +9,8 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { Like } from './like.entity';
-import { User } from 'src/modules/users/entities/user.entity';
-import { Comment } from 'src/modules/comment/entities/comment.entity';
+import { User } from '../../../modules/users/entities/user.entity';
+import { Comment } from '../../../modules/comment/entities/comment.entity';
 
 @Entity({ name: 'posts' })
 export class Post {

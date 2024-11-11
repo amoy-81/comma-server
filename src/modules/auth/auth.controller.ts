@@ -12,11 +12,11 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDTO } from './dto/login.dto';
-import { GoogleOauthGuard } from 'src/common/guards/google-oauth.guard';
+import { GoogleOauthGuard } from '../../common/guards/google-oauth.guard';
 import { Response } from 'express';
 import { RegisterInputs } from './dto/register.inputs';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { saveInStorage } from 'src/common/firebase/firebase.util';
+import { saveInStorage } from '../../common/firebase/firebase.util';
 import { ChangePasswordDTO } from './dto/change-password.dto';
 import { RefreshTokenDto } from './dto/token.dto';
 

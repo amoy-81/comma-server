@@ -15,9 +15,9 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { saveInStorage } from 'src/common/firebase/firebase.util';
+import { saveInStorage } from '../../common/firebase/firebase.util';
 
 @Controller('user')
 export class UsersController {

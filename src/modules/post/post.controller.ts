@@ -17,10 +17,9 @@ import {
 // import { CreatePostInput } from './dto/create-post.dto';
 // import { saveInStorage } from '../../common/firebase/firebase.util';
 import { PostService } from './post.service';
-import { Request } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
-import { saveInStorage } from 'src/common/firebase/firebase.util';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { saveInStorage } from '../../common/firebase/firebase.util';
 import { CreatePostInput } from './dto/createPostInput';
 import { PaginationQueryDto } from './dto/pagination-dto';
 import { PostsPaginationQueryDto } from './dto/get-posts-dto';
