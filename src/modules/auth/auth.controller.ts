@@ -19,6 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { saveInStorage } from '../../common/firebase/firebase.util';
 import { ChangePasswordDTO } from './dto/change-password.dto';
 import { RefreshTokenDto } from './dto/token.dto';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -82,6 +83,12 @@ export class AuthController {
   @HttpCode(200)
   refreshToken(@Body() { refreshToken }: RefreshTokenDto) {
     return this.authService.refreshToken(refreshToken);
+  }
+
+  @Get('whoiam')
+  @UseGuards(JwtAuthGuard)
+  whoIam(@Req() req: any) {
+    return this.authService.whoIam(req.user.id);
   }
 
   @Post('changepassword')

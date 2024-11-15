@@ -9,6 +9,8 @@ import { ChangePasswordDTO } from './dto/change-password.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Auth } from './entities/auth.entity';
 import { Repository } from 'typeorm';
+import { plainToInstance } from 'class-transformer';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -159,6 +161,13 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
   // whoIm Service
+  async whoIam(userId: number) {
+    const user = await this.userService.findUserById(userId);
+
+    if (!user) throw new HttpException('NotFound', 404);
+
+    return plainToInstance(User, user);
+  }
 
   async generateToken(userId: number) {
     const newSession = this.authRepo.create({ userId });
