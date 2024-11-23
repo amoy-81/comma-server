@@ -240,4 +240,17 @@ export class PostService {
       throw new HttpException('post is not valid', HttpStatus.BAD_REQUEST);
     }
   }
+
+  async searchPostByText(text: string, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+
+    const result = await this.postsRepository
+      .createQueryBuilder('post')
+      .where('post.text_content LIKE :text', { text: `%${text}%` })
+      .skip(offset)
+      .take(limit)
+      .getMany();
+
+    return result;
+  }
 }

@@ -23,6 +23,7 @@ import { saveInStorage } from '../../common/firebase/firebase.util';
 import { CreatePostInput } from './dto/createPostInput';
 import { PaginationQueryDto } from './dto/pagination-dto';
 import { PostsPaginationQueryDto } from './dto/get-posts-dto';
+import { SearchPostQueryDto } from './dto/search-post.dto';
 
 @Controller('post')
 export class PostController {
@@ -68,6 +69,13 @@ export class PostController {
   getRandomPosts(@Query() paginationQuery: PaginationQueryDto) {
     const { page = 1, pageSize = 6 } = paginationQuery;
     return this.postService.getRandomPosts(page, pageSize);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('search')
+  async searchPost(@Query() searchPostQueryDto: SearchPostQueryDto) {
+    const { text, page = 1, pageSize = 5 } = searchPostQueryDto;
+    return this.postService.searchPostByText(text, page, pageSize);
   }
 
   @Get(':id')
