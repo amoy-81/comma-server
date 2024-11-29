@@ -12,6 +12,8 @@ import { In, Repository } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { Like } from './entities/like.entity';
 import { UsersService } from '../users/users.service';
+import { plainToInstance } from 'class-transformer';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PostService {
@@ -246,11 +248,12 @@ export class PostService {
 
     const result = await this.postsRepository
       .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
       .where('post.text_content LIKE :text', { text: `%${text}%` })
       .skip(offset)
       .take(limit)
       .getMany();
 
-    return result;
+    return plainToInstance(User, result);
   }
 }
