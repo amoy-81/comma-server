@@ -10,6 +10,7 @@ import { CommentModule } from './modules/comment/comment.module';
 import { BoardModule } from './modules/board/board.module';
 import { NewsPaperModule } from './modules/news-paper/news-paper.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { NotifModule } from './modules/notif/notif.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     CommentModule,
     BoardModule,
     NewsPaperModule,
+    NotifModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.PG_HOST,

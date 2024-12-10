@@ -14,6 +14,7 @@ import { Vote } from '../../../modules/comment/entities/vote.entity';
 import { Board } from '../../../modules/board/entities/board.entity';
 import { Exclude } from 'class-transformer';
 import { NewsPaper } from '../../../modules/news-paper/entities/news-paper.entity';
+import { Notif } from 'src/modules/notif/entities/notif.entity';
 
 export enum UserRoles {
   NORMAL_USER = 'NORMAL_USER',
@@ -69,6 +70,12 @@ export class User {
 
   @OneToMany(() => NewsPaper, (newsPaper) => newsPaper.user)
   newsPapers: NewsPaper[];
+
+  @OneToMany(() => Notif, (notif) => notif.sender)
+  sentNotifications: Notif[];
+
+  @OneToMany(() => Notif, (notif) => notif.receiver)
+  receivedNotifications: Notif[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
