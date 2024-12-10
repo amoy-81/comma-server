@@ -5,6 +5,8 @@ import { In, Repository } from 'typeorm';
 import { PostService } from '../post/post.service';
 import { Comment } from './entities/comment.entity';
 import { Vote } from './entities/vote.entity';
+import { NotifService } from '../notif/notif.service';
+import { NotifSubject } from '../notif/entities/notif.entity';
 
 @Injectable()
 export class CommentService {
@@ -14,6 +16,7 @@ export class CommentService {
     @InjectRepository(Vote)
     private readonly voteRepository: Repository<Vote>,
     private readonly postService: PostService,
+    private readonly notifService: NotifService,
   ) {}
   async create(text: string, userId: number, postId: number) {
     const post = await this.postService.getOnePostById(postId);
@@ -26,7 +29,17 @@ export class CommentService {
     newComment.userId = userId;
     newComment.postId = post.id;
 
-    return await this.commentRepository.save(newComment);
+    const savedComment = await this.commentRepository.save(newComment);
+
+    await this.notifService.createNotif(
+      userId,
+      post.user.id,
+      postId,
+      NotifSubject.Comment,
+      text,
+    );
+
+    return savedComment;
   }
 
   async getPostComments(
@@ -97,6 +110,15 @@ export class CommentService {
       newVote.commentId = commentId;
 
       await this.voteRepository.save(newVote);
+
+      await this.notifService.createNotif(
+        userId,
+        comment.userId,
+        comment.postId,
+        NotifSubject.Vote,
+        'voted for your comment',
+      );
+
       return { message: CommentMessage.successVoteUp, op: 'VOTE_UP' };
     }
   }

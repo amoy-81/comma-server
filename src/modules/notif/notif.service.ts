@@ -14,6 +14,7 @@ export class NotifService {
   async createNotif(
     senderId: number,
     receiverId: number,
+    subjectId: number,
     subject: NotifSubject,
     message: string,
   ) {
@@ -22,6 +23,7 @@ export class NotifService {
       receiverId,
       message,
       subject,
+      subjectId,
     });
 
     return this.notificationRepository.save(newNotif);

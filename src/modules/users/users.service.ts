@@ -5,6 +5,8 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserMessage } from './messages/user.message';
 import { Following } from './entities/following.entity';
+import { NotifService } from '../notif/notif.service';
+import { NotifSubject } from '../notif/entities/notif.entity';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +15,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Following)
     private readonly followRepository: Repository<Following>,
+    private readonly notifService: NotifService,
   ) {}
   async createUser(createUserDto: CreateUserDto) {
     // Check if a user with the given email already exists in the repository
@@ -56,6 +59,14 @@ export class UsersService {
 
     // Save the new Follow instance to the repository and return the result
     const followResult = await this.followRepository.save(newFollow);
+
+    await this.notifService.createNotif(
+      userId,
+      followedUserId,
+      userId,
+      NotifSubject.Follow,
+      'Followed you',
+    );
 
     return { success: true, messgae: UserMessage.follow };
   }

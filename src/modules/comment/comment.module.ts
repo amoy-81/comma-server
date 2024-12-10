@@ -4,11 +4,11 @@ import { PostModule } from '../post/post.module';
 import { Comment } from './entities/comment.entity';
 import { Vote } from './entities/vote.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from '../users/users.module';
 import { CommentController } from './comment.controller';
+import { NotifModule } from '../notif/notif.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Comment, Vote]), PostModule],
+  imports: [TypeOrmModule.forFeature([Comment, Vote]), PostModule, NotifModule],
   controllers: [CommentController],
   providers: [CommentService],
 })

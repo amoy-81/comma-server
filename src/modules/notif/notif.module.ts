@@ -8,5 +8,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
   imports: [TypeOrmModule.forFeature([Notif])],
   controllers: [NotifController],
   providers: [NotifService],
+  exports: [NotifService],
 })
 export class NotifModule {}

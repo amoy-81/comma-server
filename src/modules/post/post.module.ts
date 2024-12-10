@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { Like } from './entities/like.entity';
 import { UsersModule } from '../users/users.module';
+import { NotifModule } from '../notif/notif.module';
 
 @Module({
-  imports: [UsersModule, TypeOrmModule.forFeature([Post, Like])],
+  imports: [UsersModule, TypeOrmModule.forFeature([Post, Like]), NotifModule],
   controllers: [PostController],
   providers: [PostService],
   exports: [PostService],

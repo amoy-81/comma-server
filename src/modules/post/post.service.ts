@@ -14,6 +14,8 @@ import { Like } from './entities/like.entity';
 import { UsersService } from '../users/users.service';
 import { plainToInstance } from 'class-transformer';
 import { User } from '../users/entities/user.entity';
+import { NotifService } from '../notif/notif.service';
+import { NotifSubject } from '../notif/entities/notif.entity';
 
 @Injectable()
 export class PostService {
@@ -21,6 +23,7 @@ export class PostService {
     private readonly userService: UsersService,
     @InjectRepository(Post) private readonly postsRepository: Repository<Post>,
     @InjectRepository(Like) private readonly likeRepository: Repository<Like>,
+    private readonly notifService: NotifService,
   ) {}
 
   async createPost(createPostDto: CreatePostDto) {
@@ -191,6 +194,15 @@ export class PostService {
       like.user_id = userId;
 
       await this.likeRepository.save(like);
+
+      await this.notifService.createNotif(
+        userId,
+        post.userId,
+        post.id,
+        NotifSubject.Like,
+        'Like your post',
+      );
+
       return { message: PostMessage.successLike, op: 'LIKE' };
     }
   }
