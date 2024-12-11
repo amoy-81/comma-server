@@ -210,4 +210,30 @@ export class UsersService {
 
     return await this.userRepository.save(user);
   }
+
+  async getUserStats(userId: number) {
+    const result = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.posts', 'post')
+      .leftJoin('user.followers', 'follower')
+      .leftJoin('user.following', 'following')
+      .where('user.id = :userId', { userId })
+      .select('user.id', 'userId')
+      .addSelect('COUNT(DISTINCT post.id)', 'postCount')
+      .addSelect('COUNT(DISTINCT follower.id)', 'followerCount')
+      .addSelect('COUNT(DISTINCT following.id)', 'followingCount')
+      .groupBy('user.id')
+      .getRawOne();
+
+    if (!result || !result.userId) {
+      throw new HttpException('User not found', 404);
+    }
+
+    return {
+      userId: result.userId,
+      postCount: Number(result.postCount),
+      followerCount: Number(result.followerCount),
+      followingCount: Number(result.followingCount),
+    };
+  }
 }

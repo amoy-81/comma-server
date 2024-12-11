@@ -41,11 +41,18 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   async getUserById(@Param('id', ParseIntPipe) id: number) {
     const user = await this.usersService.findUserById(id);
+    const status = await this.usersService.getUserStats(id);
     const { password, ...result } = user;
 
     const relatedPeople = await this.usersService.getUserFollowDetails(id);
 
-    return { user: result, related: relatedPeople };
+    return { user: result, related: relatedPeople, status };
+  }
+
+  @Get('status/:id')
+  @UseGuards(JwtAuthGuard)
+  async getUserStatus(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getUserStats(id);
   }
 
   @Put('follow-action/:id')
