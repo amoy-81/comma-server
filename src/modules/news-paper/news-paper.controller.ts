@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Param,
-  Delete,
   UseGuards,
   Req,
   UseInterceptors,
@@ -30,8 +29,9 @@ export class NewsPaperController {
   }
 
   @Get(':id')
-  getOneNewsPaper(@Param('id', ParseIntPipe) id: number) {
-    return this.newsPaperService.getNewsPaperById(id);
+  @UseGuards(JwtAuthGuard)
+  getOneNewsPaper(@Req() req: any, @Param('id', ParseIntPipe) id: number) {
+    return this.newsPaperService.getNewsPaperById(id, req.user.id);
   }
 
   @Post()
@@ -53,15 +53,5 @@ export class NewsPaperController {
     body.image = picturePath;
 
     return this.newsPaperService.addSections(body, req.user.id);
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.newsPaperService.findOne(+id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.newsPaperService.remove(+id);
   }
 }

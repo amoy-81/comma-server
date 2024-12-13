@@ -32,7 +32,7 @@ export class NewsPaperSection {
   @Column('text', { array: true })
   title: string[];
 
-  @Column()
+  @Column({ nullable: true, default: null })
   image: string;
 
   @Column('text', { array: true })

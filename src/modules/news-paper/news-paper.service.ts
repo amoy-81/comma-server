@@ -17,10 +17,10 @@ export class NewsPaperService {
 
   async create(userId: number) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
 
     const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+    tomorrow.setUTCDate(today.getUTCDate() + 1);
 
     const existingNewsPaper = await this.newsPaperRepo.findOne({
       where: {
@@ -77,14 +77,20 @@ export class NewsPaperService {
 
   async getNewsPaperById(id: number, userId: number = 0) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
 
     const newsPaper = await this.newsPaperRepo
       .createQueryBuilder('newsPaper')
       .leftJoinAndSelect('newsPaper.sections', 'section')
       .leftJoinAndSelect('newsPaper.user', 'user')
       .where(
-        'newsPaper.id = :id AND (newsPaper.createdAt < :today OR newsPaper.userId = :userId)',
+        `
+        newsPaper.id = :id AND 
+         (
+            DATE(newsPaper.createdAt) < DATE(:today) OR 
+            newsPaper.userId = :userId
+          )
+        `,
         {
           id,
           today,
@@ -102,9 +108,9 @@ export class NewsPaperService {
 
   async getYesterdayNewsPapers(page: number, limit: number) {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
     const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
+    yesterday.setUTCDate(today.getUTCDate() - 1);
 
     const queryBuilder = this.newsPaperRepo
       .createQueryBuilder('newsPaper')
@@ -136,6 +142,7 @@ export class NewsPaperService {
   // utils
   isSameDay(date: Date): boolean {
     const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
     const createdAt = new Date(date);
 
     return (
@@ -143,21 +150,5 @@ export class NewsPaperService {
       createdAt.getMonth() === today.getMonth() &&
       createdAt.getFullYear() === today.getFullYear()
     );
-  }
-
-  findAll() {
-    return `This action returns all newsPaper`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} newsPaper`;
-  }
-
-  // update(id: number, updateNewsPaperDto: UpdateNewsPaperDto) {
-  //   return `This action updates a #${id} newsPaper`;
-  // }
-
-  remove(id: number) {
-    return `This action removes a #${id} newsPaper`;
   }
 }
