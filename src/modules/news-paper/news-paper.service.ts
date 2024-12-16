@@ -5,6 +5,7 @@ import { Between, Repository } from 'typeorm';
 import { NewsPaperSection } from './entities/news-paper-section.entity';
 import { CreateNewsPaperSectionDto } from './dto/create-news-paper-section.dto';
 import { plainToInstance } from 'class-transformer';
+import { UpdateNewsPaperSectionDto } from './dto/update-news-paper-section.dto';
 
 @Injectable()
 export class NewsPaperService {
@@ -136,6 +137,76 @@ export class NewsPaperService {
       currentPage: page,
       totalPages: Math.ceil(total / limit),
       totalItems: total,
+    };
+  }
+
+  async editSection(
+    sectionId: number,
+    userId: number,
+    updatedData: UpdateNewsPaperSectionDto,
+  ) {
+    const section = await this.newsPaperSectionRepo.findOne({
+      where: { id: sectionId },
+      relations: ['newsPaper'],
+    });
+
+    if (!section) {
+      throw new HttpException('Section not found', 404);
+    }
+
+    if (section.newsPaper.userId !== userId) {
+      throw new HttpException(
+        'You are not authorized to edit this section',
+        403,
+      );
+    }
+
+    const isCreatedToday = this.isSameDay(section.createdAt);
+    if (!isCreatedToday) {
+      throw new HttpException('You can only edit sections created today', 403);
+    }
+
+    Object.assign(section, updatedData);
+
+    await this.newsPaperSectionRepo.save(section);
+
+    return {
+      message: 'Section updated successfully',
+      id: section.id,
+      newsPaperId: section.newsPaper.id,
+    };
+  }
+
+  async deleteSection(sectionId: number, userId: number) {
+    const section = await this.newsPaperSectionRepo.findOne({
+      where: { id: sectionId },
+      relations: ['newsPaper'],
+    });
+
+    if (!section) {
+      throw new HttpException('Section not found', 404);
+    }
+
+    if (section.newsPaper.userId !== userId) {
+      throw new HttpException(
+        'You are not authorized to delete this section',
+        403,
+      );
+    }
+
+    const isCreatedToday = this.isSameDay(section.createdAt);
+    if (!isCreatedToday) {
+      throw new HttpException(
+        'You can only delete sections created today',
+        403,
+      );
+    }
+
+    await this.newsPaperSectionRepo.delete(sectionId);
+
+    return {
+      message: 'Section deleted successfully',
+      id: sectionId,
     };
   }
 

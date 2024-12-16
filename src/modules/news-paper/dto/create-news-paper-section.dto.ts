@@ -2,7 +2,6 @@ import {
   IsArray,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsString,
 } from 'class-validator';
 import { NewsPaperSectionType } from '../entities/news-paper-section.entity';
