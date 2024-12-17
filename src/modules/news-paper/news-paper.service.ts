@@ -115,7 +115,7 @@ export class NewsPaperService {
 
     const queryBuilder = this.newsPaperRepo
       .createQueryBuilder('newsPaper')
-      .leftJoinAndSelect('newsPaper.sections', 'section')
+      .innerJoinAndSelect('newsPaper.sections', 'section')
       .leftJoinAndSelect('newsPaper.user', 'user')
       .where(
         'newsPaper.createdAt >= :yesterday AND newsPaper.createdAt < :today',
