@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NewsPaper } from './entities/news-paper.entity';
 import { Between, Repository } from 'typeorm';
@@ -6,6 +6,8 @@ import { NewsPaperSection } from './entities/news-paper-section.entity';
 import { CreateNewsPaperSectionDto } from './dto/create-news-paper-section.dto';
 import { plainToInstance } from 'class-transformer';
 import { UpdateNewsPaperSectionDto } from './dto/update-news-paper-section.dto';
+import { UpdateNewsPaperInfoDto } from './dto/update-news-paper-info.dto';
+import { ThemeService } from '../theme/theme.service';
 
 @Injectable()
 export class NewsPaperService {
@@ -14,6 +16,7 @@ export class NewsPaperService {
     private readonly newsPaperRepo: Repository<NewsPaper>,
     @InjectRepository(NewsPaperSection)
     private readonly newsPaperSectionRepo: Repository<NewsPaperSection>,
+    private readonly themeService: ThemeService,
   ) {}
 
   async create(userId: number) {
@@ -84,6 +87,7 @@ export class NewsPaperService {
       .createQueryBuilder('newsPaper')
       .leftJoinAndSelect('newsPaper.sections', 'section')
       .leftJoinAndSelect('newsPaper.user', 'user')
+      .leftJoinAndSelect('newsPaper.poster', 'poster')
       .where(
         `
         newsPaper.id = :id AND 
@@ -104,6 +108,10 @@ export class NewsPaperService {
       throw new HttpException('News Paper not found', 404);
     }
 
+    if (newsPaper.userId !== userId) {
+      await this.newsPaperRepo.increment({ id }, 'views', 1);
+    }
+
     return plainToInstance(NewsPaper, newsPaper);
   }
 
@@ -117,6 +125,7 @@ export class NewsPaperService {
       .createQueryBuilder('newsPaper')
       .innerJoinAndSelect('newsPaper.sections', 'section')
       .leftJoinAndSelect('newsPaper.user', 'user')
+      .leftJoinAndSelect('newsPaper.poster', 'poster')
       .where(
         'newsPaper.createdAt >= :yesterday AND newsPaper.createdAt < :today',
         {
@@ -207,6 +216,50 @@ export class NewsPaperService {
     return {
       message: 'Section deleted successfully',
       id: sectionId,
+    };
+  }
+
+  async updateNewsPaperInfo(
+    userId: number,
+    newsPaperId: number,
+    updateData: UpdateNewsPaperInfoDto,
+  ) {
+    const { posterId } = updateData;
+
+    if (posterId) {
+      const posterExists = await this.themeService.posterIsValid(posterId);
+
+      if (!posterExists) {
+        throw new HttpException('Poster not found.', HttpStatus.BAD_REQUEST);
+      }
+    }
+
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    const newsPaper = await this.newsPaperRepo
+      .createQueryBuilder('newsPaper')
+      .where('newsPaper.id = :newsPaperId', { newsPaperId })
+      .andWhere('newsPaper.userId = :userId', { userId })
+      .andWhere('DATE(newsPaper.createdAt) = DATE(:today)', { today })
+      .getOne();
+
+    if (!newsPaper) {
+      throw new HttpException(
+        'News Paper not found, unauthorized access, or not created today.',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    Object.assign(newsPaper, {
+      ...updateData,
+    });
+
+    await this.newsPaperRepo.save(newsPaper);
+
+    return {
+      message: 'News Paper updated successfully',
+      newsPaper,
     };
   }
 

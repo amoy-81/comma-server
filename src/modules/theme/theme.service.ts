@@ -17,4 +17,12 @@ export class ThemeService {
       .take(pageSize)
       .getMany();
   }
+
+  async posterIsValid(id: number): Promise<boolean> {
+    const count = await this.posterRepository.count({ where: { id } });
+
+    console.log(count, 'LLLLLLL');
+
+    return count > 0;
+  }
 }

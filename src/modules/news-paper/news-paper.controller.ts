@@ -20,6 +20,7 @@ import { saveInStorage } from '../../common/firebase/firebase.util';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PaginationQueryDto } from '../post/dto/pagination-dto';
 import { UpdateNewsPaperSectionDto } from './dto/update-news-paper-section.dto';
+import { UpdateNewsPaperInfoDto } from './dto/update-news-paper-info.dto';
 
 @Controller('news-paper')
 export class NewsPaperController {
@@ -41,6 +42,20 @@ export class NewsPaperController {
   @UseGuards(JwtAuthGuard)
   create(@Req() req: any) {
     return this.newsPaperService.create(req.user.id);
+  }
+  
+  @Put('info/:id')
+  @UseGuards(JwtAuthGuard)
+  async updateNewsPaperInfo(
+    @Req() req: any,
+    @Param('id', ParseIntPipe) newsPaperId: number,
+    @Body() updateData: UpdateNewsPaperInfoDto,
+  ) {
+    return this.newsPaperService.updateNewsPaperInfo(
+      req.user.id,
+      newsPaperId,
+      updateData,
+    );
   }
 
   @Post('section')

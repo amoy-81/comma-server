@@ -1,7 +1,9 @@
+import { NewsPaper } from 'src/modules/news-paper/entities/news-paper.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -25,4 +27,7 @@ export class Poster {
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+  @OneToMany(() => NewsPaper, (newsPaper) => newsPaper.poster)
+  newsPapers: NewsPaper;
 }
