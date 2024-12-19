@@ -11,6 +11,7 @@ import { BoardModule } from './modules/board/board.module';
 import { NewsPaperModule } from './modules/news-paper/news-paper.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { NotifModule } from './modules/notif/notif.module';
+import { ThemeModule } from './modules/theme/theme.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { NotifModule } from './modules/notif/notif.module';
       cache: true,
     }),
     CacheModule.register({ isGlobal: true }),
+    ThemeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
