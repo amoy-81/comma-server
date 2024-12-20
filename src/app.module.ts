@@ -12,6 +12,8 @@ import { NewsPaperModule } from './modules/news-paper/news-paper.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { NotifModule } from './modules/notif/notif.module';
 import { ThemeModule } from './modules/theme/theme.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -40,6 +42,9 @@ import { ThemeModule } from './modules/theme/theme.module';
     }),
     CacheModule.register({ isGlobal: true }),
     ThemeModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

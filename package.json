@@ -27,8 +27,9 @@
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^10.0.3",
-    "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-express": "^10.4.15",
     "@nestjs/platform-socket.io": "^10.3.8",
+    "@nestjs/serve-static": "^4.0.2",
     "@nestjs/typeorm": "^10.0.2",
     "@nestjs/websockets": "^10.3.8",
     "@types/bcrypt": "^5.0.2",
@@ -47,6 +48,7 @@
     "pg": "^8.12.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "serve-static": "^1.16.2",
     "typeorm": "^0.3.20",
     "uuid": "^9.0.1"
   },
