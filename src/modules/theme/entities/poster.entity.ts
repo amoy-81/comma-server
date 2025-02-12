@@ -1,4 +1,4 @@
-import { NewsPaper } from 'src/modules/news-paper/entities/news-paper.entity';
+import { NewsPaper } from '../../../modules/news-paper/entities/news-paper.entity';
 import {
   Column,
   CreateDateColumn,

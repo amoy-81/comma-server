@@ -14,7 +14,7 @@ import { Vote } from '../../../modules/comment/entities/vote.entity';
 import { Board } from '../../../modules/board/entities/board.entity';
 import { Exclude } from 'class-transformer';
 import { NewsPaper } from '../../../modules/news-paper/entities/news-paper.entity';
-import { Notif } from 'src/modules/notif/entities/notif.entity';
+import { Notif } from '../../../modules/notif/entities/notif.entity';
 
 export enum UserRoles {
   NORMAL_USER = 'NORMAL_USER',

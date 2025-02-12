@@ -1,7 +1,7 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ThemeService } from './theme.service';
-import { PaginationDto } from 'src/common/dto/pagination.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('theme')
 export class ThemeController {

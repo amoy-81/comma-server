@@ -10,7 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { NewsPaperSection } from './news-paper-section.entity';
-import { Poster } from 'src/modules/theme/entities/poster.entity';
+import { Poster } from '../../../modules/theme/entities/poster.entity';
 
 @Entity({ name: 'news_paper' })
 export class NewsPaper {

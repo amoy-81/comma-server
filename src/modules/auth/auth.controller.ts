@@ -19,7 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { saveInStorage } from '../../common/firebase/firebase.util';
 import { ChangePasswordDTO } from './dto/change-password.dto';
 import { RefreshTokenDto } from './dto/token.dto';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
