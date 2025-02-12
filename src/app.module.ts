@@ -33,8 +33,11 @@ import { join } from 'path';
       database: process.env.PG_DATABASE,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
-      ssl: {
-        rejectUnauthorized: false,
+      ssl: true,
+      extra: {
+        ssl: {
+          rejectUnauthorized: false,
+        },
       },
     }),
     ConfigModule.forRoot({
