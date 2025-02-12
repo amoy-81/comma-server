@@ -6,12 +6,14 @@ import session from 'express-session';
 import { config } from 'dotenv';
 import cookieParser from 'cookie-parser';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { NowApiHandler } from '@vercel/node';
+
+config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(new ValidationPipe());
-  config();
 
   app.enableCors({
     origin: '*',
@@ -38,6 +40,16 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  await app.listen(process.env.PORT || 3000);
+  await app.init();
+  return app;
 }
-bootstrap();
+
+const appPromise = bootstrap();
+
+const handler: NowApiHandler = async (req, res) => {
+  const app = await appPromise;
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp(req, res);
+};
+
+export default handler;

@@ -35,7 +35,7 @@ import { join } from 'path';
       synchronize: true,
       ssl: {
         ca: process.env.PG_DATABASE_CA,
-        rejectUnauthorized: true,
+        rejectUnauthorized: false,
       },
     }),
     ConfigModule.forRoot({
