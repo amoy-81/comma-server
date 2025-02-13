@@ -9,6 +9,7 @@ import { GoogleStrategy } from '../../common/strategys/google.strategy';
 import { JwtStrategy } from '../../common/strategys/jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Auth } from './entities/auth.entity';
+import { AdminJwtStrategy } from 'src/common/strategys/admin.strategy';
 
 @Module({
   imports: [
@@ -27,6 +28,6 @@ import { Auth } from './entities/auth.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, GoogleStrategy, JwtStrategy],
+  providers: [AuthService, GoogleStrategy, JwtStrategy, AdminJwtStrategy],
 })
 export class AuthModule {}

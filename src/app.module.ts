@@ -14,6 +14,7 @@ import { NotifModule } from './modules/notif/notif.module';
 import { ThemeModule } from './modules/theme/theme.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { join } from 'path';
     BoardModule,
     NewsPaperModule,
     NotifModule,
+    AdminModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.PG_HOST,
