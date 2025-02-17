@@ -33,7 +33,12 @@ export class AdminController {
     return this.adminService.checkForbiddenWordsSentence(sentence);
   }
 
-  // delete post
+  // Statistics
+  //     - all user
+  //     - posts user
+  //     - active users "sessions"
+  //     - count of login in this week
 
-  // 
+  // report a post -> user
+  // veiw and handling report (delete post || change report status) -> admin
 }
