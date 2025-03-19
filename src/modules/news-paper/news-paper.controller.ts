@@ -21,6 +21,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { PaginationQueryDto } from '../post/dto/pagination-dto';
 import { UpdateNewsPaperSectionDto } from './dto/update-news-paper-section.dto';
 import { UpdateNewsPaperInfoDto } from './dto/update-news-paper-info.dto';
+import { GetPastNewsPapersDto } from './dto/newspaper.dto';
 
 @Controller('news-paper')
 export class NewsPaperController {
@@ -32,10 +33,15 @@ export class NewsPaperController {
     return this.newsPaperService.getYesterdayNewsPapers(page, pageSize);
   }
 
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  getOneNewsPaper(@Req() req: any, @Param('id', ParseIntPipe) id: number) {
-    return this.newsPaperService.getNewsPaperById(id, req.user.id);
+  @Get('past/:id')
+  getPastNewsPaperById(@Param('id', ParseIntPipe) id: number) {
+    return this.newsPaperService.getPastNewsPaperById(id);
+  }
+
+  @Get('past')
+  getPastNewsPapers(@Query() query: GetPastNewsPapersDto) {
+    const { period, page = 1, pageSize = 6 } = query;
+    return this.newsPaperService.getPastNewsPapers(period, page, pageSize);
   }
 
   @Post()
@@ -43,7 +49,7 @@ export class NewsPaperController {
   create(@Req() req: any) {
     return this.newsPaperService.create(req.user.id);
   }
-  
+
   @Put('info/:id')
   @UseGuards(JwtAuthGuard)
   async updateNewsPaperInfo(
@@ -105,5 +111,11 @@ export class NewsPaperController {
     @Param('id', ParseIntPipe) sectionId: number,
   ) {
     return this.newsPaperService.deleteSection(sectionId, req.user.id);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  getOneNewsPaper(@Req() req: any, @Param('id', ParseIntPipe) id: number) {
+    return this.newsPaperService.getNewsPaperById(id, req.user.id);
   }
 }

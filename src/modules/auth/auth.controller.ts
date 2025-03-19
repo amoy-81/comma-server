@@ -43,11 +43,8 @@ export class AuthController {
       req.user,
     );
 
-    // if authentication is successful then set cookies and send response
-    // this.setCookie(res, 'a_t', token);
-
-    // TODO : add front end login url
-    return res.redirect(`http://localhost:4000/auth/login/verify`);
+    const redirectUrl = `${process.env.CLIENT_APP_DOMAIN}/auth/login/verify#accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    return res.redirect(redirectUrl);
   }
 
   @Post('register')
