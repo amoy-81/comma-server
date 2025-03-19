@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NewsPaper } from './entities/news-paper.entity';
 import { Between, Repository } from 'typeorm';
@@ -147,6 +152,77 @@ export class NewsPaperService {
       totalPages: Math.ceil(total / limit),
       totalItems: total,
     };
+  }
+
+  async getPastNewsPapers(
+    period: 'week' | 'month' | 'year',
+    page: number,
+    limit: number,
+  ) {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    let startDate = new Date(today);
+
+    switch (period) {
+      case 'week':
+        startDate.setUTCDate(today.getUTCDate() - 7);
+        break;
+      case 'month':
+        startDate.setUTCMonth(today.getUTCMonth() - 1);
+        break;
+      case 'year':
+        startDate.setUTCFullYear(today.getUTCFullYear() - 1);
+        break;
+      default:
+        throw new BadRequestException(
+          'Invalid period. It must be week, month, or year.',
+        );
+    }
+
+    const queryBuilder = this.newsPaperRepo
+      .createQueryBuilder('newsPaper')
+      .leftJoinAndSelect('newsPaper.user', 'user')
+      .leftJoinAndSelect('newsPaper.poster', 'poster')
+      .where(
+        'newsPaper.createdAt >= :startDate AND newsPaper.createdAt < :today',
+        {
+          startDate,
+          today,
+        },
+      )
+      .orderBy('newsPaper.createdAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit);
+
+    const [newsPapers, total] = await queryBuilder.getManyAndCount();
+
+    return {
+      data: plainToInstance(NewsPaper, newsPapers),
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalItems: total,
+    };
+  }
+
+  async getPastNewsPaperById(id: number) {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    const newsPaper = await this.newsPaperRepo
+      .createQueryBuilder('newsPaper')
+      .leftJoinAndSelect('newsPaper.sections', 'section')
+      .leftJoinAndSelect('newsPaper.user', 'user')
+      .leftJoinAndSelect('newsPaper.poster', 'poster')
+      .where('newsPaper.id = :id', { id })
+      .andWhere('DATE(newsPaper.createdAt) < DATE(:today)', { today })
+      .getOne();
+
+    if (!newsPaper) {
+      throw new HttpException('News Paper not found or created today', 404);
+    }
+
+    return plainToInstance(NewsPaper, newsPaper);
   }
 
   async editSection(
