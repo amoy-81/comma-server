@@ -43,7 +43,8 @@ export class AuthController {
       req.user,
     );
 
-    const redirectUrl = `${process.env.CLIENT_APP_DOMAIN}/auth/login/verify#accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    const redirectUrl = `${process.env.CLIENT_APP_DOMAIN}/auth/login/verify?accessToken=${accessToken}&refreshToken=${refreshToken}`;
+    console.log(redirectUrl);
     return res.redirect(redirectUrl);
   }
 
